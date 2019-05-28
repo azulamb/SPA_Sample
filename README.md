@@ -156,7 +156,7 @@ SPAっぽさは何一つ感じません。
 
 * `http://USERNAME.github.io/SPA_Sample/1/`
   * `/docs/1/index.md`
-* `http://USERNAME.github.io/SPA_Sample/1/a.md`
+* `http://USERNAME.github.io/SPA_Sample/1/a`
   * `/docs/1/a.md`
 * `http://USERNAME.github.io/SPA_Sample/1/dir/`
   * `/docs/1/dir/index.md`
@@ -170,6 +170,35 @@ SPAっぽさは何一つ感じません。
 ここら辺からGitHub Pagesで可動するJekyllが邪魔になる場合があるので無効化します。
 
 `/docs/.nojekyll` という空ファイルを設置しておいてください。
+
+#### 404対策
+
+例えば `http://USERNAME.github.io/SPA_Sample/1/a` のページに遷移しようとした時、`/docs/1/a` というファイルがなければGitHub Pagesでは404ページが表示されてしまいます。
+
+このようにファイルがない場合でも `/docs/1/index.html` をブラウザに返してもらわなければSPAが実現できません。
+（逆に言えばこのようなリクエストに対して正しい `index.html` を返す仕組みがサーバーにないとSPAが作れないので注意。）
+
+このような場合、GitHubでは以下のようなファイルを用意します。
+
+##### /docs/404.html
+
+```html
+<!DOCTYPE html>
+<html lang="ja"><head><title>Redirect</title><script>sessionStorage.redirect=location.href;</script><meta http-equiv="refresh" content="0; url=/XXXX" /></head></html>
+```
+
+このファイルを用意した場合、`http://USERNAME.github.io/XXXX/a` というURLは `http://USERNAME.github.io/XXXX/` にリダイレクトされます。
+
+そしてURL情報は `sessionStorage` に保存されます。
+
+後はSPA内で `sessionStorage` 内に前のURL情報が入っていればその情報を使い、そうでない場合は `location.pathname` を使うことで、読み込むべきファイルパスを取得することが出来ます。
+
+今回は特殊な仕様なので、以下のようなリダイレクトを行う404.htmlを作成してください。
+
+```html
+<!DOCTYPE html>
+<html lang="ja"><head><title>Redirect</title><script>sessionStorage.redirect=location.pathname;location.href=location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );</script></head></html>
+```
 
 #### 前のファイルのコピー
 
@@ -264,3 +293,9 @@ function Init() {
 中身はあまり理解しなくともよいです。
 
 とにかく `/SPA_Sample/NUM/XXXXX` における `/XXXXX` の部分を取得していることだけ理解してください。
+
+#### 確認
+
+実際確認していきます。
+
+* https://hirokimiyaoka.github.io/SPA_Sample/1/
