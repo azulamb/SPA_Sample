@@ -505,7 +505,7 @@ https://hirokimiyaoka.github.io/SPA_Sample/2/a
 	<script>
 // SPAのシステムです。
 class App {
-	// SPAで更新するコンテンツを設定します。
+	// SPAで更新するHTML要素を設定します。
 	constructor( contents ) {
 		// コンテンツを更新するHTML要素を持っておきます。
 		this.contents = contents;
@@ -693,7 +693,7 @@ https://hirokimiyaoka.github.io/SPA_Sample/3/
 
 ```js
 class App {
-	// SPAで更新するコンテンツを設定します。
+	// SPAで更新するHTML要素を設定します。
 	constructor( contents ) {
 		// コンテンツを更新するHTML要素を持っておきます。
 		this.contents = contents;
@@ -767,7 +767,7 @@ https://github.com/commonmark/commonmark.js/
 	<script>
 // SPAのシステムです。
 class App {
-	// SPAで更新するコンテンツを設定します。
+	// SPAで更新するHTML要素を設定します。
 	constructor( contents ) {
 		// コンテンツを更新するHTML要素を持っておきます。
 		this.contents = contents;
