@@ -2,5 +2,5 @@
 
 Link
 
-* [dir](./dir)
+* [dir](./dir/)
 * [a](./a)
