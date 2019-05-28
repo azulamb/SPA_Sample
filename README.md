@@ -200,6 +200,12 @@ SPAっぽさは何一つ感じません。
 <html lang="ja"><head><title>Redirect</title><script>sessionStorage.redirect=location.pathname;location.href=location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );</script></head></html>
 ```
 
+差分で特に重要なのは、`sessionStorage.redirect=location.pathname;` とリダイレクトです。
+今回は `location.pathname` のみ保存していますが、これだとGETパラメーターが消失してしまいます。
+本来であればちゃんと `location.href` でURLのパスとGETパラメーター等を全て渡すべきです。
+
+この処理は今回だけの例外なので、基本的には一つ上に用意した方のソースをベースにしてください。
+
 #### 前のファイルのコピー
 
 `/docs/0` をフォルダごとコピーして、フォルダ名を `1` に変更してください。
@@ -260,20 +266,25 @@ function Fetch( baseurl, path ) {
 なにもない場合は `/` に書き換え、末尾が `/` の場合は `index` を追加し、最後に末尾に `.md` を追加します。
 
 ```js
+// 初期化部分。
 function Init() {
 	// コンテンツを描画するHTML要素を取得します。
 	const contents = document.getElementById( 'contents' );
 
+	// 今回必要なパスは sessionStorage.redirect もしくは location.pathname の中に入っています。
+	// 今回はここでどちらか値がある方のデータを取得します。
+	// ちなみに、どちらも単純に代入しただけだと文字列としてコピーされず、値を変更した時に悲惨なことになるので必ず文字列にしておいた方がよいです。
+	const pathname = ( sessionStorage.redirect || location.pathname ) + '';
+	// sessionStorageのデータは消しておきます。（消しておかないとリダイレクト以外の方法で来た場合に別のページが表示される。）
+	delete sessionStorage.redirect;
+
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
 	// http://USERNAME.github.io/SPA_Sample/NUM/XXXXX から /SPA_Sample/NUM/ だけ抽出します。
-	// location.pathname は /SPA_Sample/NUM/XXXXX の部分を取得可能です。
-	const baseurl = location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+	const baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 	// 今度はURLからSPAにとってのパスを取得します。
-	// 本来なら location.pathname の中身をそのまま使うので、以下のように文字列にします。
-	// const path = location.pathname + ''; // 文字列にしないとうっかり path を書き換えた時悲惨なことになるので注意。
 	// /SPA_Sample/NUM/XXXXX の /XXXXX の部分ですが、この中には/が入っている可能性もあります。
-	const path = location.pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
+	const path = pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
 
 	// コンテンツを取得します。
 	Fetch( baseurl, path ).then( ( md ) => {
@@ -289,9 +300,15 @@ function Init() {
 
 `Init()` では `path` の取得方法とエラー時のコンテンツの表示周りを調整しています。
 
-ここに書いてあるとおり、本来ならばSPAでは `const path = location.pathname + '';` で良いのですが、今回はURLの都合上このように少し複雑な正規表現を用いています。
-中身はあまり理解しなくともよいです。
+まず、普通にこのページが呼ばれた場合は `location.pathname` にデータがあります。
+しかし、今回用意した `404.html` 経由で来た場合はURLは `http://USERNAME.github.io/SPA_Sample/1/` 固定になってしまいます。
+リダイレクト前のURL情報が必要になります。
 
+このリダイレクト前のURLは `sessionStorage.redirect` に入っています。
+そこで、この値を取得して存在しない場合は `location.pathname` のデータを使うことにします。
+
+次に `path` ですが、今回はURLの都合上このように少し複雑な正規表現を用いています。
+中身はあまり理解しなくともよいです。
 とにかく `/SPA_Sample/NUM/XXXXX` における `/XXXXX` の部分を取得していることだけ理解してください。
 
 #### 確認

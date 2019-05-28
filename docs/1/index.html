@@ -31,16 +31,20 @@ function Init() {
 	// コンテンツを描画するHTML要素を取得します。
 	const contents = document.getElementById( 'contents' );
 
+	// 今回必要なパスは sessionStorage.redirect もしくは location.pathname の中に入っています。
+	// 今回はここでどちらか値がある方のデータを取得します。
+	// ちなみに、どちらも単純に代入しただけだと文字列としてコピーされず、値を変更した時に悲惨なことになるので必ず文字列にしておいた方がよいです。
+	const pathname = ( sessionStorage.redirect || location.pathname ) + '';
+	// sessionStorageのデータは消しておきます。
+	delete sessionStorage.redirect;
+
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
 	// http://USERNAME.github.io/SPA_Sample/NUM/XXXXX から /SPA_Sample/NUM/ だけ抽出します。
-	// location.pathname は /SPA_Sample/NUM/XXXXX の部分を取得可能です。
-	const baseurl = location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+	const baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 	// 今度はURLからSPAにとってのパスを取得します。
-	// 本来なら location.pathname の中身をそのまま使うので、以下のように文字列にします。
-	// const path = location.pathname + ''; // 文字列にしないとうっかり path を書き換えた時悲惨なことになるので注意。
 	// /SPA_Sample/NUM/XXXXX の /XXXXX の部分ですが、この中には/が入っている可能性もあります。
-	const path = location.pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
+	const path = pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
 
 	// コンテンツを取得します。
 	Fetch( baseurl, path ).then( ( md ) => {
