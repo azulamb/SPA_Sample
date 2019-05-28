@@ -33,7 +33,7 @@ class App {
 
 	// パスを元にコンテンツのレンダリングを行います。
 	renderPage( path ) {
-		return Fetch( baseurl, path ).then( ( md ) => {
+		return Fetch( this.baseurl, path ).then( ( md ) => {
 			this.render( md );
 		} ).catch( ( error ) => {
 			// 何かしらのエラーが発生しました。
