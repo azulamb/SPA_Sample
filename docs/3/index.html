@@ -51,7 +51,13 @@ class App {
 
 	// 目的のページに遷移する関数を作ります。
 	jumpPage( path ) {
-		return () => { this.gotoPage( path ); };
+		return ( e ) => {
+			// クリック時の諸々のデフォルト処理を止めます。これでページ遷移を潰します。
+			e.preventDefault();
+			// SPAでのページ遷移を行います。
+			this.gotoPage( path );
+			return false;
+		};
 	}
 
 	// リンクを探してページ遷移処理に書き換えます。
