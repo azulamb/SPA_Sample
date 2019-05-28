@@ -1,3 +1,6 @@
 # index.md
 
-test
+Link
+
+* [dir](./dir)
+* [a](./a)

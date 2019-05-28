@@ -12,6 +12,10 @@ class App {
 		// コンテンツを更新するHTML要素を持っておきます。
 		this.contents = contents;
 
+		// CommonMarkの初期化を行います。
+		this.reader = new commonmark.Parser();
+		this.writer = new commonmark.HtmlRenderer();
+
 		// ページに来た初回のレンダリング周りの処理を行います。
 		const pathname = ( sessionStorage.redirect || location.pathname ) + '';
 		delete sessionStorage.redirect;
@@ -38,7 +42,11 @@ class App {
 
 	// データを元にコンテンツのレンダリングを行います。
 	render( data ) {
-		this.contents.textContent = data;
+		// MarkdownをHTMLに変換します。
+		this.contents.innerHTML = writer.render( reader.parse( data ) );
+
+		// コンテンツが更新されたので、コンテンツ内のリンクを探して制御下に置きます。
+		this.convertAnchor( this.contents );
 	}
 
 	// パスを元にコンテンツのレンダリングを行います。
@@ -122,7 +130,10 @@ document.addEventListener( 'DOMContentLoaded', Init );
 	</script>
 </head>
 <body>
-<pre id="contents"></pre>
-<a href="./a">a.md</a>
+	<article style="max-width:800px;margin:auto;">
+		<a href="/SPA_Sample/5/" style="display:block;text-align:center;">Top</a>
+		<hr />
+		<div id="contents"></div>
+	</article>
 </body>
 </html>
