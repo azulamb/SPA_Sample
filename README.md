@@ -44,6 +44,7 @@ SPAは `Single Page Application` の略で、Webページの一つの形です�
 
 * `index.md` の内容を取ってきて表示するだけのページ
 * URLに応じて読み込むファイルを変えるページ
+* コンテンツに応じて適切なURLを表示するページ
 
 ### index.md の内容を取ってきて表示するだけのページ
 
@@ -316,3 +317,112 @@ function Init() {
 実際確認していきます。
 
 * https://hirokimiyaoka.github.io/SPA_Sample/1/
+  * 前のサンプルと同じ結果が表示されます。
+* https://hirokimiyaoka.github.io/SPA_Sample/1/a
+  * リダイレクトが走り、URLが `https://hirokimiyaoka.github.io/SPA_Sample/1/` になります。
+  * コンテンツは `/docs/1/a.md` です。
+* https://hirokimiyaoka.github.io/SPA_Sample/1/dir/
+  * 挙動は上と同じです。ディレクトリ階層があっても表示可能です。
+  * コンテンツは `/docs/1/dir/index.md` です。
+* https://hirokimiyaoka.github.io/SPA_Sample/1/dir/b
+  * 挙動は上と同じです。
+  * コンテンツは `/docs/1/a.md` です。
+* https://hirokimiyaoka.github.io/SPA_Sample/1/notfound
+  * 存在しないコンテンツを読み込もうとしたので、エラーページが表示されました。
+
+URLに応じて適切なコンテンツの表示ができ、SPAに近づきつつあるような気がします。
+
+### コンテンツに応じて適切なURLを表示するページ
+
+さて、先程のページは問題点があります。
+URLに応じたコンテンツは表示できたものの、リダイレクトによって全てのページURLがおなじになってしまいます。
+このままでは良くないのでURLを元に戻す作業をしたいと思います。
+
+#### コピー
+
+`/docs/1/` をフォルダごとコピーして `2` にリネームします。
+
+そして `/docs/2/index.html` を次のように変更します。
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	<title>SPA sample 0</title>
+	<script>
+// コンテンツを取得します。
+function Fetch( baseurl, path ) {
+	// pathの簡易チェックを行います。
+	if ( !path ) { path = '/'; }
+	// pathの末尾が / の場合は index を追加します。
+	if ( path.match( /\/$/ ) ) { path += 'index'; }
+	// pathに .md を追加します。
+	path += '.md';
+	// fetch()を使いやすいようにラップします。
+	return fetch( baseurl + path ).then( ( result ) => {
+		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
+		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
+		if ( result.ok ) { return result.text(); }
+		throw result;
+	} );
+}
+
+// コンテンツのレンダリングを行います。
+function Render( contents, data ) {
+	contents.textContent = data;
+}
+
+// 初期化部分。
+function Init() {
+	// コンテンツを描画するHTML要素を取得します。
+	const contents = document.getElementById( 'contents' );
+
+	// 今回必要なパスは sessionStorage.redirect もしくは location.pathname の中に入っています。
+	// 今回はここでどちらか値がある方のデータを取得します。
+	// ちなみに、どちらも単純に代入しただけだと文字列としてコピーされず、値を変更した時に悲惨なことになるので必ず文字列にしておいた方がよいです。
+	const pathname = ( sessionStorage.redirect || location.pathname ) + '';
+	// sessionStorageのデータは消しておきます。
+	delete sessionStorage.redirect;
+
+	// 今回の特殊事情の関係で、ベースのURLを作成します。
+	// http://USERNAME.github.io/SPA_Sample/NUM/XXXXX から /SPA_Sample/NUM/ だけ抽出します。
+	const baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+
+	// 今度はURLからSPAにとってのパスを取得します。
+	// /SPA_Sample/NUM/XXXXX の /XXXXX の部分ですが、この中には/が入っている可能性もあります。
+	const path = pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
+
+	// アドレスバーのURLを書き換えます。書き換えるだけなので履歴は残りません。
+	history.replaceState( null, '', redirect );
+
+	// コンテンツを取得します。
+	Fetch( baseurl, path ).then( ( md ) => {
+		// 取得したコンテンツをレンダリングする。
+		Render( contents, md );
+	} ).catch( ( error ) => {
+		// 何かしらのエラーが発生しました。
+		// この場合は単純に # Error というコンテンツを表示します。
+		Render( contents, '# Error' );
+	} );
+}
+
+// document.getElementById() を使っても大丈夫になったら初期化関数を実行する。
+document.addEventListener( 'DOMContentLoaded', Init );
+	</script>
+</head>
+<body>
+<pre id="contents"></pre>
+<a href="./a">a.md</a>
+</body>
+</html>
+```
+
+変更箇所は2箇所です。
+
+`Init()` 内の `Fetch()` 直前でアドレスバーを書き換えています。
+
+`history` を使うとアドレスバーの書き換えが可能の他、ブラウザの進む、戻る、履歴の追加などのブラウザ履歴を操作することが可能です。
+SPAには欠かせない機能がいろいろ詰め込まれています。
+
+また実験のためにHTMLソースにリンクも追加してあります。
