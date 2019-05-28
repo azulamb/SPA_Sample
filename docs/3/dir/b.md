@@ -1,0 +1,3 @@
+# dir/b.md
+
+test

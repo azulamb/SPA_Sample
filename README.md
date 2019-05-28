@@ -33,8 +33,9 @@ SPAは `Single Page Application` の略で、Webページの一つの形です�
 とりあえず以下のようなSPAを作ります。
 
 * URL末尾に `.md` をつけたMarkdownファイルを読み込んでページに表示する。
-   * 今回はソースだけ表示する。
-   * `/` で終わる場合は `index` というファイル名として扱う。
+  * 今回はソースだけ表示する。
+  * `/` で終わる場合は `index` というファイル名として扱う。
+* リンクを踏んでもページを読み込むのではなくコンテンツのみ読み込んで描画する。
 
 ## SPA作成
 
@@ -45,6 +46,7 @@ SPAは `Single Page Application` の略で、Webページの一つの形です�
 * `index.md` の内容を取ってきて表示するだけのページ
 * URLに応じて読み込むファイルを変えるページ
 * コンテンツに応じて適切なURLを表示するページ
+* リンクを制御するページ
 
 ### index.md の内容を取ってきて表示するだけのページ
 
@@ -426,3 +428,159 @@ document.addEventListener( 'DOMContentLoaded', Init );
 SPAには欠かせない機能がいろいろ詰め込まれています。
 
 また実験のためにHTMLソースにリンクも追加してあります。
+
+#### 挙動確認
+
+それではページを開いてみます。
+
+https://hirokimiyaoka.github.io/SPA_Sample/2/a
+
+こちらのページに遷移しても、アドレスバーのURLが `https://hirokimiyaoka.github.io/SPA_Sample/2/` に変更されません。
+これでリダイレクト対策はできました。
+
+しかし、今回追加したリンクをクリックしても、普通にページを読み込んでしまいます。
+これではSPAにはなりません。
+
+これから、ちゃんとしたSPAにします。
+
+### リンクを制御するページ
+
+ついにリンクを制御します。
+
+リンクはクリックすると普通にサーバーにアクセスしてしまうため、ここの制御を乗っ取ってJavaScriptで制御することで、SPAの挙動にすることが出来ます。
+
+そのためには2つの作業が必要です。
+
+* 目的のパスを渡すとコンテンツを更新する仕組みを作る
+* リンクを探してページ遷移の処理を行う仕組みを作る
+
+#### 目的のパスを渡すとコンテンツを更新する仕組みを作る
+
+今まで `Fetch()` や `Render()` という関数を用意してきましたが、このままでは多少使いづらいです。
+ここで一気にSPAのクラスを作って、そこで管理できるように作り変えます。
+
+`/docs/2/` をフォルダごとコピーして `3` にリネームします。
+
+そして `/docs/3/index.html` を編集していきます。
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	<title>SPA sample 0</title>
+	<script>
+// SPAのシステムです。
+class App {
+	// SPAで更新するコンテンツを設定します。
+	constructor( contents ) {
+		// コンテンツを更新するHTML要素を持っておきます。
+		this.contents = contents;
+
+		// ページに来た初回のレンダリング周りの処理を行います。
+		const pathname = ( sessionStorage.redirect || location.pathname ) + '';
+		delete sessionStorage.redirect;
+
+		this.baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+
+		// ページのパスを取得します。
+		const path = pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
+
+		// アドレスバーのURLを書き換えます。書き換えるだけなので履歴は残りません。
+		history.replaceState( null, '', pathname );
+
+		this.renderPage( path );
+	}
+
+	// データを元にコンテンツのレンダリングを行います。
+	render( data ) {
+		this.contents.textContent = data;
+	}
+
+	// パスを元にコンテンツのレンダリングを行います。
+	renderPage( path ) {
+		return Fetch( baseurl, path ).then( ( md ) => {
+			this.render( md );
+		} ).catch( ( error ) => {
+			// 何かしらのエラーが発生しました。
+			this.render( '# Error' );
+		} );
+	}
+
+	// 目的のページに遷移します。
+	gotoPage( path ) {
+		// 履歴に追加します。
+		history.pushState( null, '', path + '' );
+
+		return this.renderPage( path );
+	}
+}
+
+// コンテンツを取得します。
+function Fetch( baseurl, path ) {
+	// pathの簡易チェックを行います。
+	if ( !path ) { path = '/'; }
+	// pathの末尾が / の場合は index を追加します。
+	if ( path.match( /\/$/ ) ) { path += 'index'; }
+	// pathに .md を追加します。
+	path += '.md';
+	// fetch()を使いやすいようにラップします。
+	return fetch( baseurl + path ).then( ( result ) => {
+		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
+		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
+		if ( result.ok ) { return result.text(); }
+		throw result;
+	} );
+}
+
+// 初期化部分。
+function Init() {
+	// SPAの制御を行うクラスをインスタンス化します。
+	const app = new App( document.getElementById( 'contents' ) );
+}
+
+// document.getElementById() を使っても大丈夫になったら初期化関数を実行する。
+document.addEventListener( 'DOMContentLoaded', Init );
+	</script>
+</head>
+<body>
+<pre id="contents"></pre>
+<a href="./a">a.md</a>
+</body>
+</html>
+```
+
+クラスを使ってかなり書き換えたものの、処理はほぼ増えていません。
+
+ですが重要な変更が加えラッれています。
+それがベースのURLやコンテンツのレンダリング対象が一括管理されるようになったことです。
+
+例えば前の `Render( HTML要素, データ )` には書き込む対象のHTML要素とデータが必要でしたが、今回の改修で `app.render( データ )` というようにデータを渡すだけでよくなりました。
+
+次に、ページ遷移が可能になりました。
+`app.gotoPage( パス )` でアドレスバーをそのパスのURLに変更し、コンテンツも取得して描画することができるようになっています。
+
+後は、どうにかしてリンクを自分の制御下に置きたいです。
+
+ここで、次のようにリンクを何とかしたいと思います。
+
+* とりあえず `<a>` を見つける。
+  * `<button>` などのクリック時の処理はどうやってもこちらから手を出すべきではない。
+* `href` の中身が存在しなかったり、`onclick` に何か関数が設定されている場合は何もしない。
+* リンク先が自分の制御下にある。
+  * 違うページは制御できない。
+* `target` が指定されている場合は手を出さない。
+  * 普通別のウィンドウ・タブにページが新たに開かれるので、自分の制御下から外れる。
+
+これらの条件を満たすHTML要素に対して何かしらの処理をすれば良さそうです。
+今回は `onclick` を無視するので、条件を満たす `<a>` を見つけたら `onclick` にページ遷移する関数を与えればうまくいきそうな気がします。
+
+では実装です。
+
+```js
+class App {
+	// ～省略～
+
+}
+```
+
