@@ -4,6 +4,8 @@
 
 今回はGitHub Pagesで動作させるのでパス周りが若干特殊です。
 
+（通常SPAだと `https://domain/` 全てが使えるみたいな感じですが、今回は通常のGitHub Pagesなので `https://USER.github.io/REPOSITORY/` 以下が制御対象なのに加え、その中でもバージョンの違いを意識したディレクトリがあるため、パスの階層が深いところがドキュメントルート扱いになっているため、パス周りに正規表現が絡んで面倒くさいことになっている。）
+
 ## そもそもSPAって？
 
 SPAは `Single Page Application` の略で、Webページの一つの形です。
