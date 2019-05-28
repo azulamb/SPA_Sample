@@ -44,7 +44,7 @@ class App {
 	// 目的のページに遷移します。
 	gotoPage( path ) {
 		// 履歴に追加します。
-		history.pushState( null, '', path + '' );
+		history.pushState( null, '', this.baseurl + path );
 
 		return this.renderPage( path );
 	}
