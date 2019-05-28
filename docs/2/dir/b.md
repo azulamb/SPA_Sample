@@ -1,3 +1,3 @@
 # dir/b.md
 
-test
+[Link]( ./ )

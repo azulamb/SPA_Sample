@@ -2,6 +2,8 @@
 
 何がRe:なのか知りませんが、ゼロからSPAページを作りたいと思います。
 
+今回はGitHub Pagesで動作させるのでパス周りが若干特殊です。
+
 ## そもそもSPAって？
 
 SPAは `Single Page Application` の略で、Webページの一つの形です。
@@ -35,7 +37,7 @@ SPAは `Single Page Application` の略で、Webページの一つの形です�
 * URL末尾に `.md` をつけたMarkdownファイルを読み込んでページに表示する。
   * 今回はソースだけ表示する。
   * `/` で終わる場合は `index` というファイル名として扱う。
-* リンクを踏んでもページを読み込むのではなくコンテンツのみ読み込んで描画する。
+* リンクを踏んでもページを読み込むのではなくコンテンツのみ読み込んで一部だけ再レンダリングする。
 
 ## SPA作成
 
@@ -95,7 +97,7 @@ function Render( contents, data ) {
 
 // 初期化部分。
 function Init() {
-	// コンテンツを描画するHTML要素を取得します。
+	// コンテンツをレンダリングするHTML要素を取得します。
 	const contents = document.getElementById( 'contents' );
 
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
@@ -219,12 +221,25 @@ SPAっぽさは何一つ感じません。
 
 今のうちに必要なMarkdownファイルを用意しておきます。
 
+また `/docs/1/index.md` も書き換えておきます。
+
+##### /docs/1/index.md
+
+```md
+# index.md
+
+Link
+
+* [dir](./dir/)
+* [a](./a)
+```
+
 ##### /docs/1/a.md
 
 ```md
 # a.md
 
-test
+a page!!!!
 ```
 
 ##### /docs/1/dir/index.md
@@ -232,14 +247,16 @@ test
 ```md
 # dir/index.md
 
-test
+* [Back]( ../ )
+* [b]( ./b )
+```
 
 ##### /docs/1/dir/b.md
 
 ```md
 # dir/b.md
 
-test
+[Link]( ./ )
 ```
 
 #### ソースの改変
@@ -273,7 +290,7 @@ function Fetch( baseurl, path ) {
 ```js
 // 初期化部分。
 function Init() {
-	// コンテンツを描画するHTML要素を取得します。
+	// コンテンツをレンダリングするHTML要素を取得します。
 	const contents = document.getElementById( 'contents' );
 
 	// 今回必要なパスは sessionStorage.redirect もしくは location.pathname の中に入っています。
@@ -379,7 +396,7 @@ function Render( contents, data ) {
 
 // 初期化部分。
 function Init() {
-	// コンテンツを描画するHTML要素を取得します。
+	// コンテンツをレンダリングするHTML要素を取得します。
 	const contents = document.getElementById( 'contents' );
 
 	// 今回必要なパスは sessionStorage.redirect もしくは location.pathname の中に入っています。
@@ -560,7 +577,7 @@ document.addEventListener( 'DOMContentLoaded', Init );
 例えば前の `Render( HTML要素, データ )` には書き込む対象のHTML要素とデータが必要でしたが、今回の改修で `app.render( データ )` というようにデータを渡すだけでよくなりました。
 
 次に、ページ遷移が可能になりました。
-`app.gotoPage( パス )` でアドレスバーをそのパスのURLに変更し、コンテンツも取得して描画することができるようになっています。
+`app.gotoPage( パス )` でアドレスバーをそのパスのURLに変更し、コンテンツも取得してレンダリングすることができるようになっています。
 
 後は、どうにかしてリンクを自分の制御下に置きたいです。
 
@@ -653,7 +670,7 @@ https://hirokimiyaoka.github.io/SPA_Sample/3/
 
 現在戻ってもコンテンツは更新されません。
 それは、現在ページ遷移すると正しいURLを履歴に追加していますが、履歴を追加しただけなので戻ってもページ遷移が発生しません。
-ここのイベントを取得して戻る進むなどのブラウザ操作があった場合に適切にコンテンツを描画します。
+ここのイベントを取得して戻る進むなどのブラウザ操作があった場合に適切にコンテンツをレンダリングします。
 
 `/docs/3/` をフォルダごとコピーして `4` にリネームします。
 
@@ -723,7 +740,176 @@ https://github.com/commonmark/commonmark.js/
 
 こちらのページの `/dest/commonmark.min.js` をダウンロードして `/docs/5/` に入れてください。
 
-そして `/docs/5/index.html` に次の処理を追加します。
+そして `/docs/5/index.html` を次のように書き換えます。
 
 ```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	<title>SPA sample 4</title>
+	<script src="./commonmark.min.js"></script>
+	<script>
+// SPAのシステムです。
+class App {
+	// SPAで更新するコンテンツを設定します。
+	constructor( contents ) {
+		// コンテンツを更新するHTML要素を持っておきます。
+		this.contents = contents;
+
+		// CommonMarkの初期化を行います。
+		this.reader = new commonmark.Parser();
+		this.writer = new commonmark.HtmlRenderer();
+
+		// ページに来た初回のレンダリング周りの処理を行います。
+		const pathname = ( sessionStorage.redirect || location.pathname ) + '';
+		delete sessionStorage.redirect;
+
+		this.baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+
+		// ブラウザ履歴が変更される時にレンダリングを行います。
+		window.addEventListener( 'popstate', () => { return this.onPopState(); }, false );
+
+		// ページのパスを取得します。
+		const path = pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
+
+		// アドレスバーのURLを書き換えます。書き換えるだけなので履歴は残りません。
+		history.replaceState( null, '', pathname );
+
+		this.renderPage( path );
+	}
+
+	// ブラウザ履歴変更時の処理です。
+	onPopState() {
+		// URLはすでに変更済みなので、現在のURLからレンダリング用のパスを取り出してレンダリングを行います。
+		this.renderPage( location.pathname.replace( this.baseurl, '' ) );
+	}
+
+	// データを元にコンテンツのレンダリングを行います。
+	render( data ) {
+		// MarkdownをHTMLに変換します。
+		this.contents.innerHTML = this.writer.render( this.reader.parse( data ) );
+
+		// コンテンツが更新されたので、コンテンツ内のリンクを探して制御下に置きます。
+		this.convertAnchor( this.contents );
+	}
+
+	// パスを元にコンテンツのレンダリングを行います。
+	renderPage( path ) {
+		return Fetch( this.baseurl, path ).then( ( md ) => {
+			this.render( md );
+		} ).catch( ( error ) => {
+			// 何かしらのエラーが発生しました。
+			this.render( '# Error' );
+		} );
+	}
+
+	// 目的のページに遷移します。
+	gotoPage( path ) {
+		// 履歴に追加します。
+		history.pushState( null, '', this.baseurl + path );
+
+		return this.renderPage( path );
+	}
+
+	// 目的のページに遷移する関数を作ります。
+	jumpPage( path ) {
+		return ( e ) => {
+			// クリック時の諸々のデフォルト処理を止めます。これでページ遷移を潰します。
+			e.preventDefault();
+			// SPAでのページ遷移を行います。
+			this.gotoPage( path );
+			return false;
+		};
+	}
+
+	// リンクを探してページ遷移処理に書き換えます。
+	convertAnchor( target )
+	{
+		// targetに指定がない場合は、document.bodyを指定します。
+		if ( target === undefined ) { target = document.body }
+		// ベースとなるURLを作ります。
+		const baseurl = location.protocol + '//' + location.host + this.baseurl;
+		// <a>を探します。
+		const anchors = target.getElementsByTagName( 'a' );
+		for ( let i= 0 ; i < anchors.length ; ++i )
+		{
+			// hrefが存在しないかonclickが設定されているかtargetが指定されている場合は無視します。
+			if ( !anchors[ i ].href || anchors[ i ].onclick || anchors[ i ].target ) { continue; }
+			// <a>のhrefはURLのフルパスが記載されているので、制御下のURLかどうか判定します。
+			// URLがbaseurlから始まっていない場合は無視します。
+			if ( anchors[ i ].href.indexOf( baseurl ) !== 0 ) { continue; }
+
+			anchors[ i ].onclick = this.jumpPage( anchors[ i ].href.replace( baseurl, '' ) );
+		}
+	}
+}
+
+// コンテンツを取得します。
+function Fetch( baseurl, path ) {
+	// pathの簡易チェックを行います。
+	if ( !path ) { path = '/'; }
+	// pathの末尾が / の場合は index を追加します。
+	if ( path.match( /\/$/ ) ) { path += 'index'; }
+	// pathに .md を追加します。
+	path += '.md';
+	// fetch()を使いやすいようにラップします。
+	return fetch( baseurl + path ).then( ( result ) => {
+		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
+		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
+		if ( result.ok ) { return result.text(); }
+		throw result;
+	} );
+}
+
+// 初期化部分。
+function Init() {
+	// SPAの制御を行うクラスをインスタンス化します。
+	const app = new App( document.getElementById( 'contents' ) );
+
+	app.convertAnchor();
+}
+
+// document.getElementById() を使っても大丈夫になったら初期化関数を実行する。
+document.addEventListener( 'DOMContentLoaded', Init );
+	</script>
+</head>
+<body>
+	<article style="max-width:800px;margin:auto;">
+		<a href="/SPA_Sample/5/" style="display:block;text-align:center;">Top</a>
+		<hr />
+		<div id="contents"></div>
+	</article>
+</body>
+</html>
 ```
+
+変更点は `render()` 内でCommonMarkを使ったMarkdownのレンダリングを行っているところと、その後変更箇所に対してリンクを検索しているところです。
+
+特に今回はリンクは次のような声質を持っています。
+
+* ページ全体にリンクがあるかもしれないので、一度は全てのリンクを調べておきたい。
+* コンテンツが更新されるところは限られているので、更新時にその中だけ調べて処理を置き換えれば問題がない。
+
+これにより、 `render()` 周りの更新がメインとなっています。
+
+ページリンクがちゃんとつながり、一番上にあるTopボタンを押してもリロードなくページが更新されます。
+これで最低限それっぽいSPAになったのではないでしょうか。
+
+## まとめ
+
+SPAをゼロから作ってみました。
+
+SPAの実現には以下の準備が必要でした。
+
+* SPAのページを返す何らかのサーバー上の仕組み
+  * GitHub Pagesでは404ページにリダイレクトとURLの引き継ぎ処理を書いておくことで実現できた。
+* リンクの制御
+  * 書き換えるべきリンクを探し、その処理をSPA制御下に置くよう書き換えた。
+  * 初めはページ全体、次は更新処理が走ったところだけ書き換えを行った。
+* ブラウザ履歴の制御
+  * リダイレクトからページが読み込まれた場合は今のURLを書き換えた。
+  * SPAのページ遷移が発生した場合は、新しいURLの履歴を追加した。
+  * ブラウザの戻る・進むが発生した場合は現在のURLがすでに書き換わっているので、そこに応じた再レンダリング処理を追加した。
+
+いくつか粗はあるものの、ここら辺を抑えておけば思ったよりも楽に実装できたかなと思います。

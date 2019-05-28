@@ -1,3 +1,4 @@
 # dir/index.md
 
-test
+* [Back]( ../ )
+* [b]( ./b )
