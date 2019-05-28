@@ -43,7 +43,7 @@ class App {
 	// データを元にコンテンツのレンダリングを行います。
 	render( data ) {
 		// MarkdownをHTMLに変換します。
-		this.contents.innerHTML = writer.render( reader.parse( data ) );
+		this.contents.innerHTML = this.writer.render( this.reader.parse( data ) );
 
 		// コンテンツが更新されたので、コンテンツ内のリンクを探して制御下に置きます。
 		this.convertAnchor( this.contents );
