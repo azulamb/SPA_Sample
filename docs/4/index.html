@@ -17,6 +17,9 @@ class App {
 
 		this.baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
+		// ブラウザ履歴が変更される時にレンダリングを行います。
+		window.addEventListener( 'popstate', () => { return this.onPopState(); }, false );
+
 		// ページのパスを取得します。
 		const path = pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
 
@@ -24,6 +27,12 @@ class App {
 		history.replaceState( null, '', pathname );
 
 		this.renderPage( path );
+	}
+
+	// ブラウザ履歴変更時の処理です。
+	onPopState() {
+		// URLはすでに変更済みなので、現在のURLからレンダリング用のパスを取り出してレンダリングを行います。
+		this.renderPage( location.pathname.replace( this.baseurl, '' ) );
 	}
 
 	// データを元にコンテンツのレンダリングを行います。
