@@ -48,6 +48,7 @@ SPAは `Single Page Application` の略で、Webページの一つの形です�
 * コンテンツに応じて適切なURLを表示するページ
 * リンクを制御するページ
 * ブラウザ履歴を制御するページ
+* 仕上げ
 
 ### index.md の内容を取ってきて表示するだけのページ
 
@@ -352,7 +353,7 @@ URLに応じたコンテンツは表示できたものの、リダイレクト�
 <html lang="ja">
 <head>
 	<meta charset="utf-8">
-	<title>SPA sample 0</title>
+	<title>SPA sample 2</title>
 	<script>
 // コンテンツを取得します。
 function Fetch( baseurl, path ) {
@@ -469,7 +470,7 @@ https://hirokimiyaoka.github.io/SPA_Sample/2/a
 <html lang="ja">
 <head>
 	<meta charset="utf-8">
-	<title>SPA sample 0</title>
+	<title>SPA sample 3</title>
 	<script>
 // SPAのシステムです。
 class App {
@@ -654,4 +655,73 @@ https://hirokimiyaoka.github.io/SPA_Sample/3/
 それは、現在ページ遷移すると正しいURLを履歴に追加していますが、履歴を追加しただけなので戻ってもページ遷移が発生しません。
 ここのイベントを取得して戻る進むなどのブラウザ操作があった場合に適切にコンテンツを描画します。
 
+`/docs/3/` をフォルダごとコピーして `4` にリネームします。
+
+そして `/docs/4/index.html` に次の処理を追加します。
+
+```js
+class App {
+	// SPAで更新するコンテンツを設定します。
+	constructor( contents ) {
+		// コンテンツを更新するHTML要素を持っておきます。
+		this.contents = contents;
+
+		// ページに来た初回のレンダリング周りの処理を行います。
+		const pathname = ( sessionStorage.redirect || location.pathname ) + '';
+		delete sessionStorage.redirect;
+
+		this.baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+
+		// ブラウザ履歴が変更される時にレンダリングを行います。
+		window.addEventListener( 'popstate', () => { return this.onPopState(); }, false );
+
+		// ページのパスを取得します。
+		const path = pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
+
+		// アドレスバーのURLを書き換えます。書き換えるだけなので履歴は残りません。
+		history.replaceState( null, '', pathname );
+
+		this.renderPage( path );
+	}
+
+	// ブラウザ履歴変更時の処理です。
+	onPopState() {
+		// URLはすでに変更済みなので、現在のURLからレンダリング用のパスを取り出してレンダリングを行います。
+		this.renderPage( location.pathname.replace( this.baseurl, '' ) );
+	}
+
+   // ～省略～
+}
+```
+
+重要なのは `popstate` イベントとその挙動です。
+
+このイベントはブラウザの戻るや進むで履歴が取り出されたときのイベントです。
+そして、このイベントが呼び出されている時すでにURLは履歴から取り出したURLとなっています。
+
+これが分かってしまえば、後はこのイベントでレンダリングの更新を行えば問題なくブラウザの戻る・進むに対応できます。
+
+これでほぼSPAみたいなものです。
+
+では、最後に仕上げをします。
+
+### 仕上げ
+
+このSPAはまだまだ粗が多いのですが、最後に2つ機能を実装して終わりにします。
+
+* Markdownのレンダリング
+* リンクの監視
+
+このSPAはもう一つ問題を抱えていて、それはちゃんとコンテンツをレンダリングした後、リンクを適切にページ遷移処理に変更する事ができていません。
+そこで、Markdownもきっちりレンダリングしつつ、変更があった（新しく作られた）リンクをSPA制御下に置くための監視処理を実装します。
+
+`/docs/4/` をフォルダごとコピーして `5` にリネームします。
+
+次にMarkdownのレンダリングのために、CommonMarkを用意します。
+
+https://github.com/commonmark/commonmark.js/
+
+こちらのページの `/dest/commonmark.min.js` をダウンロードして `/docs/5/` に入れてください。
+
+そして `/docs/5/index.html` に次の処理を追加します。
 

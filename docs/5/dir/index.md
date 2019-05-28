@@ -1,0 +1,3 @@
+# dir/index.md
+
+test
