@@ -47,7 +47,7 @@ function Init() {
 	const path = pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
 
 	// アドレスバーのURLを書き換えます。書き換えるだけなので履歴は残りません。
-	history.replaceState( null, '', redirect );
+	history.replaceState( null, '', pathname );
 
 	// コンテンツを取得します。
 	Fetch( baseurl, path ).then( ( md ) => {
