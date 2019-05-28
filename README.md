@@ -47,6 +47,7 @@ SPAは `Single Page Application` の略で、Webページの一つの形です�
 * URLに応じて読み込むファイルを変えるページ
 * コンテンツに応じて適切なURLを表示するページ
 * リンクを制御するページ
+* ブラウザ履歴を制御するページ
 
 ### index.md の内容を取ってきて表示するだけのページ
 
@@ -581,6 +582,76 @@ document.addEventListener( 'DOMContentLoaded', Init );
 class App {
 	// ～省略～
 
+	// 目的のページに遷移する関数を作ります。
+	jumpPage( path ) {
+		return ( e ) => {
+			// クリック時の諸々のデフォルト処理を止めます。これでページ遷移を潰します。
+			e.preventDefault();
+			// SPAでのページ遷移を行います。
+			this.gotoPage( path );
+			return false;
+		};
+	}
+
+	// リンクを探してページ遷移処理に書き換えます。
+	convertAnchor( target )
+	{
+		// targetに指定がない場合は、document.bodyを指定します。
+		if ( target === undefined ) { target = document.body }
+		// ベースとなるURLを作ります。
+		const baseurl = location.protocol + '//' + location.host + this.baseurl;
+		// <a>を探します。
+		const anchors = target.getElementsByTagName( 'a' );
+		for ( let i= 0 ; i < anchors.length ; ++i )
+		{
+			// hrefが存在しないかonclickが設定されているかtargetが指定されている場合は無視します。
+			if ( !anchors[ i ].href || anchors[ i ].onclick || anchors[ i ].target ) { continue; }
+			// <a>のhrefはURLのフルパスが記載されているので、制御下のURLかどうか判定します。
+			// URLがbaseurlから始まっていない場合は無視します。
+			if ( anchors[ i ].href.indexOf( baseurl ) !== 0 ) { continue; }
+
+			anchors[ i ].onclick = this.jumpPage( anchors[ i ].href.replace( baseurl, '' ) );
+		}
+	}
+}
+
+// ～省略～
+
+// 初期化部分。
+function Init() {
+	// SPAの制御を行うクラスをインスタンス化します。
+	const app = new App( document.getElementById( 'contents' ) );
+
+	app.convertAnchor();
 }
 ```
+
+まず重要なのがクリック時の挙動です。
+今回は条件に合う `<a>` を見つけると、そこの `onclick` に対してブラウザによるページ遷移を殺してSPAによるページ遷移を行う関数を登録する必要があります。
+
+そこで重要なのが、`jumpPage()` です。
+この `jumpPage()` は `App`クラスのメソッドですが、やっていることは `onclick` に登録する関数の作成です。
+ここの中で `e.preventDefault();` を使うことでブラウザのデフォルトの挙動を封じることが出来ます。
+後はSPAのレンダリングを行えばSPAによるページ遷移ができました。
+
+#### 実際の確認
+
+https://hirokimiyaoka.github.io/SPA_Sample/3/
+
+こちらにアクセスした後リンクをクリックします。
+
+ページが再読込されずコンテンツが書き換わるかと思います。
+
+かなりSPAっぽい挙動になってきました。
+
+### ブラウザ履歴を制御するページ
+
+さて、だいぶSPAっぽい挙動になってきたのですが、まだ一つ足りていない機能があります。
+
+ブラウザの戻るへの対応です。
+
+現在戻ってもコンテンツは更新されません。
+それは、現在ページ遷移すると正しいURLを履歴に追加していますが、履歴を追加しただけなので戻ってもページ遷移が発生しません。
+ここのイベントを取得して戻る進むなどのブラウザ操作があった場合に適切にコンテンツを描画します。
+
 
