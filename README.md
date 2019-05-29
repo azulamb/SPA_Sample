@@ -100,7 +100,7 @@ GitHub Pagesで作るので、フォルダ構成は以下になります。
 URLは次のようになるはずです。
 
 ```text
-http://USERNAME.github.io/SPA_Sample/NUM/
+http://USER.github.io/REPOSITORY/NUM/
 ```
 
 またリポジトリは `SPA_Sample` という想定で作っているので、ごく一部この値が入っている箇所があります。
@@ -108,7 +108,7 @@ http://USERNAME.github.io/SPA_Sample/NUM/
 
 ### index.md の内容を取ってきて表示するだけのページ
 
-初めの目標は `http://USERNAME.github.io/REPOSITORY/0/` にアクセスした時 `/REPOSITORY/0/index.md` を読み込んで表示することにします。
+初めの目標は `http://USER.github.io/REPOSITORY/0/` にアクセスした時 `/REPOSITORY/0/index.md` を読み込んで表示することにします。
 
 #### /docs/0/index.html
 
@@ -148,7 +148,7 @@ function Init() {
 	const contents = document.getElementById( 'contents' );
 
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
-	// http://USERNAME.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
+	// http://USER.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
 	// location.pathname は /REPOSITORY/NUM/XXXXX の部分を取得可能です。
 	const baseurl = location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
@@ -175,7 +175,7 @@ document.addEventListener( 'DOMContentLoaded', Init );
 ```
 
 今回まず無視しても良いところは `baseurl` の作成部分です。
-やっていることは `http://USERNAME.github.io/REPOSITORY/NUM/XXXX` というURLだった場合、取得できるパスは `/REPOSITORY/NUM/XXXX` ですがここから `/REPOSITORY/NUM` を抽出しています。
+やっていることは `http://USER.github.io/REPOSITORY/NUM/XXXX` というURLだった場合、取得できるパスは `/REPOSITORY/NUM/XXXX` ですがここから `/REPOSITORY/NUM` を抽出しています。
 GitHub Pagesで使うことを前提としているので、あえてこの部分を抽出して利用します。
 （この作業は普通のSPAを作る時には必要ないことがほとんどかと思います。）
 
@@ -211,15 +211,15 @@ https://hirokimiyaoka.github.io/SPA_Sample/0/
 
 具体的には以下のような感じです。
 
-* `http://USERNAME.github.io/REPOSITORY/1/`
+* `http://USER.github.io/REPOSITORY/1/`
   * `/docs/1/index.md`
-* `http://USERNAME.github.io/REPOSITORY/1/a`
+* `http://USER.github.io/REPOSITORY/1/a`
   * `/docs/1/a.md`
-* `http://USERNAME.github.io/REPOSITORY/1/dir/`
+* `http://USER.github.io/REPOSITORY/1/dir/`
   * `/docs/1/dir/index.md`
-* `http://USERNAME.github.io/REPOSITORY/1/dir/b`
+* `http://USER.github.io/REPOSITORY/1/dir/b`
   * `/docs/1/dir/b.md`
-* `http://USERNAME.github.io/REPOSITORY/1/notfound`
+* `http://USER.github.io/REPOSITORY/1/notfound`
   * このファイルは用意せず、エラーページとして見る。
 
 #### Jekyllの無効化
@@ -231,7 +231,7 @@ https://hirokimiyaoka.github.io/SPA_Sample/0/
 
 #### 404対策
 
-例えば `http://USERNAME.github.io/REPOSITORY/1/a` のページに遷移しようとした時、`/docs/1/a` というファイルがなければGitHub Pagesでは404ページが表示されてしまいます。
+例えば `http://USER.github.io/REPOSITORY/1/a` のページに遷移しようとした時、`/docs/1/a` というファイルがなければGitHub Pagesでは404ページが表示されてしまいます。
 
 このようにファイルがない場合でも `/docs/1/index.html` をブラウザに返してもらわなければSPAが実現できません。
 （逆に言えばこのようなリクエストに対して正しい `index.html` を返す仕組みがサーバーにないとSPAが作れないので注意。）
@@ -245,7 +245,7 @@ https://hirokimiyaoka.github.io/SPA_Sample/0/
 <html lang="ja"><head><title>Redirect</title><script>sessionStorage.redirect=location.href;</script><meta http-equiv="refresh" content="0; url=/REPOSITORY" /></head></html>
 ```
 
-このファイルを用意した場合、`http://USERNAME.github.io/REPOSITORY/XXXXX` というURLは `http://USERNAME.github.io/REPOSITORY/` にリダイレクトされます。
+このファイルを用意した場合、`http://USER.github.io/REPOSITORY/XXXXX` というURLは `http://USER.github.io/REPOSITORY/` にリダイレクトされます。
 （もちろんカスタムドメインを使った場合は `http://domain/` にリダイレクトできるよう、上の `/REPOSITORY` を `/` に書き換えます。）
 
 そしてURL情報は `sessionStorage` に保存されます。
@@ -263,7 +263,7 @@ https://hirokimiyaoka.github.io/SPA_Sample/0/
 今回は `location.pathname` のみ保存していますが、これだとGETパラメーターが消失してしまいます。
 本来であればちゃんと `location.href` でURLのパスとGETパラメーター等を全て渡すべきです。
 
-リダイレクトは `http://USERNAME.github.io/XXXX/NUM/XXXXX` というURLに遷移した場合、`http://USERNAME.github.io/XXXX/NUM/`にリダイレクトします。
+リダイレクトは `http://USER.github.io/XXXX/NUM/XXXXX` というURLに遷移した場合、`http://USER.github.io/XXXX/NUM/`にリダイレクトします。
 今回 `NUM` の部分は0～5でサンプルごとに異なるものの設置しているファイルが1つなので、それに対応するために正規表現でリダイレクト先を変更しています。
 
 この処理は今回だけの例外なので、基本的には一つ上に用意した方のソースをベースにしてください。
@@ -360,7 +360,7 @@ function Init() {
 	delete sessionStorage.redirect;
 
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
-	// http://USERNAME.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
+	// http://USER.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
 	const baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 	// 今度はURLからSPAにとってのパスを取得します。
@@ -382,7 +382,7 @@ function Init() {
 `Init()` では `path` の取得方法とエラー時のコンテンツの表示周りを調整しています。
 
 まず、普通にこのページが呼ばれた場合は `location.pathname` にデータがあります。
-しかし、今回用意した `404.html` 経由で来た場合はURLは `http://USERNAME.github.io/REPOSITORY/1/` 固定になってしまいます。
+しかし、今回用意した `404.html` 経由で来た場合はURLは `http://USER.github.io/REPOSITORY/1/` 固定になってしまいます。
 リダイレクト前のURL情報が必要になります。
 
 このリダイレクト前のURLは `sessionStorage.redirect` に入っています。
@@ -469,7 +469,7 @@ function Init() {
 	delete sessionStorage.redirect;
 
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
-	// http://USERNAME.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
+	// http://USER.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
 	const baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 	// 今度はURLからSPAにとってのパスを取得します。
@@ -531,8 +531,8 @@ https://hirokimiyaoka.github.io/SPA_Sample/2/a
 この機能を実装するには2つの作業が必要です。
 
 * 目的のパスを渡すとコンテンツを更新する仕組みを作る。
-  * `https://hirokimiyaoka.github.io/SPA_Sample/3/a` の場合目的のパスは `/a` 等になる。
-  * `/a` を渡すと `/SPA_Sample/3/a` のファイルを読み込む。
+  * `https://USER.github.io/REPOSITORY/3/a` の場合目的のパスは `/a` 等になる。
+  * `/a` を渡すと `/REPOSITORY/3/a` のファイルを読み込む。
 * リンクを探してページ遷移の処理を行う仕組みを作る。
   * ここでブラウザデフォルトの挙動であるサーバーへのリクエストを止める。
 
@@ -650,7 +650,7 @@ document.addEventListener( 'DOMContentLoaded', Init );
   * 第一引数はMarkdownのソースで文字列。
   * 実際にコンテンツのレンダリングを行います。
 * `renderPage( path )`
-  * 第一引数はパスで、 `https://hirokimiyaoka.github.io/SPA_Sample/3/XXXX` の場合は `/XXXX`
+  * 第一引数はパスで、 `https://USER.github.io/REPOSITORY/3/XXXX` の場合は `/XXXX`
   * パスで指定されたMarkdownをダウンロードし、上の `render()` を使ってコンテンツのレンダリングを行います。
 * `gotoPage( path )`
   * 第一引数は上と同じくパスです。

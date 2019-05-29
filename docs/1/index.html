@@ -42,7 +42,7 @@ function Init() {
 	delete sessionStorage.redirect;
 
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
-	// http://USERNAME.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
+	// http://USER.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
 	const baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 	// 今度はURLからSPAにとってのパスを取得します。
