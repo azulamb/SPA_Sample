@@ -108,7 +108,7 @@ http://USERNAME.github.io/SPA_Sample/NUM/
 
 ### index.md の内容を取ってきて表示するだけのページ
 
-初めの目標は `http://USERNAME.github.io/SPA_Sample/0/` にアクセスした時 `/SPA_Sample/0/index.md` を読み込んで表示することにします。
+初めの目標は `http://USERNAME.github.io/REPOSITORY/0/` にアクセスした時 `/REPOSITORY/0/index.md` を読み込んで表示することにします。
 
 #### /docs/0/index.html
 
@@ -148,12 +148,12 @@ function Init() {
 	const contents = document.getElementById( 'contents' );
 
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
-	// http://USERNAME.github.io/SPA_Sample/NUM/XXXXX から /SPA_Sample/NUM/ だけ抽出します。
-	// location.pathname は /SPA_Sample/NUM/XXXXX の部分を取得可能です。
+	// http://USERNAME.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
+	// location.pathname は /REPOSITORY/NUM/XXXXX の部分を取得可能です。
 	const baseurl = location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 	// 今度はURLからSPAにとってのパスを取得します。
-	// /SPA_Sample/NUM/XXXXX の /XXXXX の部分ですが、この中には/が入っている可能性もあります。
+	// /REPOSITORY/NUM/XXXXX の /XXXXX の部分ですが、この中には/が入っている可能性もあります。
 	// 今回は / 固定にします。必要なファイルは index.md になります。
 	const path = '/';
 
@@ -211,15 +211,15 @@ https://hirokimiyaoka.github.io/SPA_Sample/0/
 
 具体的には以下のような感じです。
 
-* `http://USERNAME.github.io/SPA_Sample/1/`
+* `http://USERNAME.github.io/REPOSITORY/1/`
   * `/docs/1/index.md`
-* `http://USERNAME.github.io/SPA_Sample/1/a`
+* `http://USERNAME.github.io/REPOSITORY/1/a`
   * `/docs/1/a.md`
-* `http://USERNAME.github.io/SPA_Sample/1/dir/`
+* `http://USERNAME.github.io/REPOSITORY/1/dir/`
   * `/docs/1/dir/index.md`
-* `http://USERNAME.github.io/SPA_Sample/1/dir/b`
+* `http://USERNAME.github.io/REPOSITORY/1/dir/b`
   * `/docs/1/dir/b.md`
-* `http://USERNAME.github.io/SPA_Sample/1/notfound`
+* `http://USERNAME.github.io/REPOSITORY/1/notfound`
   * このファイルは用意せず、エラーページとして見る。
 
 #### Jekyllの無効化
@@ -231,7 +231,7 @@ https://hirokimiyaoka.github.io/SPA_Sample/0/
 
 #### 404対策
 
-例えば `http://USERNAME.github.io/SPA_Sample/1/a` のページに遷移しようとした時、`/docs/1/a` というファイルがなければGitHub Pagesでは404ページが表示されてしまいます。
+例えば `http://USERNAME.github.io/REPOSITORY/1/a` のページに遷移しようとした時、`/docs/1/a` というファイルがなければGitHub Pagesでは404ページが表示されてしまいます。
 
 このようにファイルがない場合でも `/docs/1/index.html` をブラウザに返してもらわなければSPAが実現できません。
 （逆に言えばこのようなリクエストに対して正しい `index.html` を返す仕組みがサーバーにないとSPAが作れないので注意。）
@@ -360,11 +360,11 @@ function Init() {
 	delete sessionStorage.redirect;
 
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
-	// http://USERNAME.github.io/SPA_Sample/NUM/XXXXX から /SPA_Sample/NUM/ だけ抽出します。
+	// http://USERNAME.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
 	const baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 	// 今度はURLからSPAにとってのパスを取得します。
-	// /SPA_Sample/NUM/XXXXX の /XXXXX の部分ですが、この中には/が入っている可能性もあります。
+	// /REPOSITORY/NUM/XXXXX の /XXXXX の部分ですが、この中には/が入っている可能性もあります。
 	const path = pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
 
 	// コンテンツを取得します。
@@ -382,7 +382,7 @@ function Init() {
 `Init()` では `path` の取得方法とエラー時のコンテンツの表示周りを調整しています。
 
 まず、普通にこのページが呼ばれた場合は `location.pathname` にデータがあります。
-しかし、今回用意した `404.html` 経由で来た場合はURLは `http://USERNAME.github.io/SPA_Sample/1/` 固定になってしまいます。
+しかし、今回用意した `404.html` 経由で来た場合はURLは `http://USERNAME.github.io/REPOSITORY/1/` 固定になってしまいます。
 リダイレクト前のURL情報が必要になります。
 
 このリダイレクト前のURLは `sessionStorage.redirect` に入っています。
@@ -390,7 +390,7 @@ function Init() {
 
 次に `path` ですが、今回はURLの都合上このように少し複雑な正規表現を用いています。
 中身はあまり理解しなくともよいです。
-とにかく `/SPA_Sample/NUM/XXXXX` における `/XXXXX` の部分を取得していることだけ理解してください。
+とにかく `/REPOSITORY/NUM/XXXXX` における `/XXXXX` の部分を取得していることだけ理解してください。
 
 #### 確認
 
@@ -469,11 +469,11 @@ function Init() {
 	delete sessionStorage.redirect;
 
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
-	// http://USERNAME.github.io/SPA_Sample/NUM/XXXXX から /SPA_Sample/NUM/ だけ抽出します。
+	// http://USERNAME.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
 	const baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 	// 今度はURLからSPAにとってのパスを取得します。
-	// /SPA_Sample/NUM/XXXXX の /XXXXX の部分ですが、この中には/が入っている可能性もあります。
+	// /REPOSITORY/NUM/XXXXX の /XXXXX の部分ですが、この中には/が入っている可能性もあります。
 	const path = pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
 
 	// アドレスバーのURLを書き換えます。書き換えるだけなので履歴は残りません。
@@ -985,7 +985,7 @@ document.addEventListener( 'DOMContentLoaded', Init );
 
 変更点は `render()` 内でCommonMarkを使ったMarkdownのレンダリングを行っているところと、その後変更箇所に対してリンクを検索しているところです。
 
-特に今回はリンクは次のような声質を持っています。
+特に今回のリンクは次のような性質を持っています。
 
 * ページ全体にリンクがあるかもしれないので、一度は全てのリンクを調べておきたい。
 * コンテンツが更新されるところは限られているので、更新時にその中だけ調べて処理を置き換えれば問題がない。
