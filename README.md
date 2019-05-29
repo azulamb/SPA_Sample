@@ -59,9 +59,10 @@ SPAは `Single Page Application` の略でWebページの一つの形です。
 
 ### SPAを作ってみる
 
-（Markdown除いて）ライブラリなしの全て手書きでSPAを実現しましょう。
+それではSPAを作っていきましょう。
+今回はシンプルにHTMLファイル1つに全てを詰め込みます。
 
-とりあえず以下のようなSPAを作ります。
+以下のようなSPAを目標にします。
 
 * URL末尾に `.md` をつけたMarkdownファイルを読み込んでページに表示する。
   * 例えばURLが `https://domain/XXX` であれば、`https://domain/XXX.md` を読み込むということ。
@@ -72,9 +73,7 @@ SPAは `Single Page Application` の略でWebページの一つの形です。
 * ブラウザの戻るなどが発生しても、再読込せず再レンダリングする。
   * ブラウザの履歴を操作する。
 
-## SPA作成
-
-今回はHTMLファイル1つで完結するように作ります。
+## SPA作成手順
 
 段階を踏んで機能を追加しながらSPAを作ります。
 
@@ -242,10 +241,11 @@ https://hirokimiyaoka.github.io/SPA_Sample/0/
 
 ```html
 <!DOCTYPE html>
-<html lang="ja"><head><title>Redirect</title><script>sessionStorage.redirect=location.href;</script><meta http-equiv="refresh" content="0; url=/XXXX" /></head></html>
+<html lang="ja"><head><title>Redirect</title><script>sessionStorage.redirect=location.href;</script><meta http-equiv="refresh" content="0; url=/REPOSITORY" /></head></html>
 ```
 
-このファイルを用意した場合、`http://USERNAME.github.io/XXXX/a` というURLは `http://USERNAME.github.io/XXXX/` にリダイレクトされます。
+このファイルを用意した場合、`http://USERNAME.github.io/REPOSITORY/XXXXX` というURLは `http://USERNAME.github.io/REPOSITORY/` にリダイレクトされます。
+（もちろんカスタムドメインを使った場合は `http://domain/` にリダイレクトできるよう、上の `/REPOSITORY` を `/` に書き換えます。）
 
 そしてURL情報は `sessionStorage` に保存されます。
 
@@ -255,12 +255,15 @@ https://hirokimiyaoka.github.io/SPA_Sample/0/
 
 ```html
 <!DOCTYPE html>
-<html lang="ja"><head><title>Redirect</title><script>sessionStorage.redirect=location.pathname;location.href=location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );</script></head></html>
+<html lang="ja"><head><title>Redirect</title><script>sessionStorage.redirect=location.pathname;const path=location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );if(path!==location.pathname){location.href=path;}</script></head></html>
 ```
 
 差分で特に重要なのは、`sessionStorage.redirect=location.pathname;` とリダイレクトです。
 今回は `location.pathname` のみ保存していますが、これだとGETパラメーターが消失してしまいます。
 本来であればちゃんと `location.href` でURLのパスとGETパラメーター等を全て渡すべきです。
+
+リダイレクトは `http://USERNAME.github.io/XXXX/NUM/XXXXX` というURLに遷移した場合、`http://USERNAME.github.io/XXXX/NUM/`にリダイレクトします。
+今回 `NUM` の部分は0～5でサンプルごとに異なるものの設置しているファイルが1つなので、それに対応するために正規表現でリダイレクト先を変更しています。
 
 この処理は今回だけの例外なので、基本的には一つ上に用意した方のソースをベースにしてください。
 

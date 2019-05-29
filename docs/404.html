@@ -1,2 +1,2 @@
 <!DOCTYPE html>
-<html lang="ja"><head><title>Redirect</title><script>sessionStorage.redirect=location.pathname;location.href=location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );</script></head></html>
+<html lang="ja"><head><title>Redirect</title><script>sessionStorage.redirect=location.pathname;const path=location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );if(path!==location.pathname){location.href=path;}</script></head></html>
