@@ -1,4 +1,4 @@
 # dir/index.md
 
-* [Back]( ../ )
-* [b]( ./b )
+* [Back](../)
+* [b](./b)

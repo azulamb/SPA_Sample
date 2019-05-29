@@ -296,8 +296,8 @@ a page!!!!
 ```md
 # dir/index.md
 
-* [Back]( ../ )
-* [b]( ./b )
+* [Back](../)
+* [b](./b)
 ```
 
 ##### /docs/1/dir/b.md
@@ -305,7 +305,7 @@ a page!!!!
 ```md
 # dir/b.md
 
-[Link]( ./ )
+[Link](./)
 ```
 
 #### ソースの改変
@@ -390,13 +390,13 @@ function Init() {
   * 前のサンプルと同じ結果が表示されます。
 * https://hirokimiyaoka.github.io/SPA_Sample/1/a
   * リダイレクトが走り、URLが `https://hirokimiyaoka.github.io/SPA_Sample/1/` になります。
-  * コンテンツは `/docs/1/a.md` です。
+  * 表示コンテンツは `/docs/1/a.md` です。
 * https://hirokimiyaoka.github.io/SPA_Sample/1/dir/
   * 挙動は上と同じです。ディレクトリ階層があっても表示可能です。
-  * コンテンツは `/docs/1/dir/index.md` です。
+  * 表示コンテンツは `/docs/1/dir/index.md` です。
 * https://hirokimiyaoka.github.io/SPA_Sample/1/dir/b
   * 挙動は上と同じです。
-  * コンテンツは `/docs/1/a.md` です。
+  * 表示コンテンツは `/docs/1/a.md` です。
 * https://hirokimiyaoka.github.io/SPA_Sample/1/notfound
   * 存在しないコンテンツを読み込もうとしたので、エラーページが表示されました。
 
