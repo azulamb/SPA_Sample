@@ -255,7 +255,7 @@ https://hirokimiyaoka.github.io/SPA_Sample/0/
 
 ```html
 <!DOCTYPE html>
-<html lang="ja"><head><title>Redirect</title><script>sessionStorage.redirect=location.pathname;location.href=location.pathname;</script></head></html>
+<html lang="ja"><head><title>Redirect</title><script>sessionStorage.redirect=location.pathname;location.href=location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );</script></head></html>
 ```
 
 差分で特に重要なのは、`sessionStorage.redirect=location.pathname;` とリダイレクトです。
