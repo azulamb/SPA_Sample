@@ -722,7 +722,7 @@ function Init() {
 	// SPAの制御を行うクラスをインスタンス化します。
 	const app = new App( document.getElementById( 'contents' ) );
 
-   // 一度はページ全体のリンクを調べます。
+	// 一度はページ全体のリンクを調べます。
 	app.convertAnchor();
 }
 ```
@@ -802,7 +802,8 @@ class App {
 		this.renderPage( location.pathname.replace( this.baseurl, '' ) );
 	}
 
-   // ～省略～
+
+	// ～省略～
 }
 ```
 
@@ -964,7 +965,7 @@ function Init() {
 	// SPAの制御を行うクラスをインスタンス化します。
 	const app = new App( document.getElementById( 'contents' ) );
 
-   // 一度はページ全体のリンクを調べます。
+	// 一度はページ全体のリンクを調べます。
 	app.convertAnchor();
 }
 
@@ -1009,6 +1010,6 @@ SPAの実現には以下の準備・実装が必要でした。
 * ブラウザ履歴の制御
   * リダイレクトからページが読み込まれた場合は今のURLを書き換えた。
   * SPAのページ遷移が発生した場合は、新しいURLの履歴を追加した。
-  * ブラウザの戻る・進むが発生した場合は現在のURLがすでに書き換わっているので、そこに応じた再レンダリング処理を追加した。
+  * ブラウザの戻る・進むが発生した場合は、現在のURLがすでに書き換わっているのでそこに応じた再レンダリング処理を追加した。
 
 いくつか粗はあるものの、ここら辺を抑えておけば思ったよりも楽に実装できたかなと思います。
