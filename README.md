@@ -131,7 +131,10 @@ function Fetch( baseurl, path ) {
 		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
-		throw result;
+		// 結果をテキストにして取り出し、エラーとして処理します。
+		return result.text().catch( ( error ) => { return error; } ).then( () => {
+			throw result;
+		} );
 	} );
 }
 
@@ -328,7 +331,10 @@ function Fetch( baseurl, path ) {
 		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
-		throw result;
+		// 結果をテキストにして取り出し、エラーとして処理します。
+		return result.text().catch( ( error ) => { return error; } ).then( () => {
+			throw result;
+		} );
 	} );
 }
 ```
@@ -434,7 +440,10 @@ function Fetch( baseurl, path ) {
 		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
-		throw result;
+		// 結果をテキストにして取り出し、エラーとして処理します。
+		return result.text().catch( ( error ) => { return error; } ).then( () => {
+			throw result;
+		} );
 	} );
 }
 
@@ -597,7 +606,10 @@ function Fetch( baseurl, path ) {
 		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
-		throw result;
+		// 結果をテキストにして取り出し、エラーとして処理します。
+		return result.text().catch( ( error ) => { return error; } ).then( () => {
+			throw result;
+		} );
 	} );
 }
 
@@ -908,7 +920,10 @@ function Fetch( baseurl, path ) {
 		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
-		throw result;
+		// 結果をテキストにして取り出し、エラーとして処理します。
+		return result.text().catch( ( error ) => { return error; } ).then( () => {
+			throw result;
+		} );
 	} );
 }
 
