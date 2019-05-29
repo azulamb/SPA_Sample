@@ -131,7 +131,7 @@ function Fetch( baseurl, path ) {
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
 		// 結果をテキストにして取り出し、エラーとして処理します。
-		return result.text().catch( ( error ) => { return error; } ).then( () => {
+		return result.text().catch( ( error ) => { return error; } ).then( ( result ) => {
 			throw new Error( result );
 		} );
 	} );
@@ -336,7 +336,7 @@ function Fetch( baseurl, path ) {
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
 		// 結果をテキストにして取り出し、エラーとして処理します。
-		return result.text().catch( ( error ) => { return error; } ).then( () => {
+		return result.text().catch( ( error ) => { return error; } ).then( ( result ) => {
 			throw new Error( result );
 		} );
 	} );
@@ -445,7 +445,7 @@ function Fetch( baseurl, path ) {
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
 		// 結果をテキストにして取り出し、エラーとして処理します。
-		return result.text().catch( ( error ) => { return error; } ).then( () => {
+		return result.text().catch( ( error ) => { return error; } ).then( ( result ) => {
 			throw new Error( result );
 		} );
 	} );
@@ -615,7 +615,7 @@ function Fetch( baseurl, path ) {
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
 		// 結果をテキストにして取り出し、エラーとして処理します。
-		return result.text().catch( ( error ) => { return error; } ).then( () => {
+		return result.text().catch( ( error ) => { return error; } ).then( ( result ) => {
 			throw new Error( result );
 		} );
 	} );
@@ -954,7 +954,7 @@ function Fetch( baseurl, path ) {
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
 		// 結果をテキストにして取り出し、エラーとして処理します。
-		return result.text().catch( ( error ) => { return error; } ).then( () => {
+		return result.text().catch( ( error ) => { return error; } ).then( ( result ) => {
 			throw new Error( result );
 		} );
 	} );
