@@ -19,7 +19,7 @@ function Fetch( baseurl, path ) {
 		if ( result.ok ) { return result.text(); }
 		// 結果をテキストにして取り出し、エラーとして処理します。
 		return result.text().catch( ( error ) => { return error; } ).then( () => {
-			throw result;
+			throw new Error( result );
 		} );
 	} );
 }
