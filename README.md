@@ -1,14 +1,25 @@
 # Re:ゼロから始めるSPA
 
 何がRe:なのか知りませんが、ゼロからSPAページを作りたいと思います。
+（SPA周りの処理に関しては使用ライブラリなし、ES2015相当の生JavaScriptです。Markdownのレンダリングだけは許して……。）
+
+## 注意事項
 
 今回はGitHub Pagesで動作させるのでパス周りが若干特殊です。
 
-（通常SPAだと `https://domain/` 全てが使えるみたいな感じですが、今回は通常のGitHub Pagesなので `https://USER.github.io/REPOSITORY/` 以下が制御対象なのに加え、その中でもバージョンの違いを意識したディレクトリがあるため、パスの階層が深いところがドキュメントルート扱いになっているため、パス周りに正規表現が絡んで面倒くさいことになっている。）
+通常SPAだと `https://domain/` 全てが使えるみたいな感じで使われるでしょう。
+このようにすれば、URLの中でも `https://domain/XXXX` の XXXX の部分が直に使えるため便利なのと、絶対パスも `/` から始めるだけでお手軽です。
+
+しかし、今回は通常のGitHub Pagesなので `https://USER.github.io/REPOSITORY/` 以下が制御対象になります。
+それ加えその中でもバージョンの違いを意識したディレクトリがあるため、パスの階層が深いところがドキュメントルート扱いになっています。
+
+そのため、例えば通常のSPAでは `/contents` で目的のコンテンツにアクセスできるはすが、`/REPOSITORY/NUM/contents` になってしまいます。
+
+そこら辺は正規表現などでカバーしていますが、多少面倒くさいです。
 
 ## そもそもSPAって？
 
-SPAは `Single Page Application` の略で、Webページの一つの形です。
+SPAは `Single Page Application` の略でWebページの一つの形です。
 
 通常Webページはブラウザがサーバーにリクエストを投げると結果をHTML形式のデータで返してきます。（サーバー側のHTMLのレンダリング）
 
@@ -24,9 +35,25 @@ SPAは `Single Page Application` の略で、Webページの一つの形です�
 
 ではこのSPAを実現するにはどんな機能が必要でしょう？
 
-* 最初のレンダリングの後は全てJSでレンダリングの更新を行う
-* リンクをクリックしてもページ遷移のリクエストをサーバーに送らず、内々で処理する
-* ブラウザの戻るボタンを押しても内々で処理する
+まずサーバー側です。
+サーバー側は次の内どれかの機能を有していればSPAが実現できます。
+
+* 未知のパス、SPAで処理をするパスに対してSPAのページを返す。
+  * 早い話、普通のWebサーバーはURL＝ファイルの場所だが、SPAの場合URL＝ファイルの場所ではない。
+  * SPAで処理すべきパスにはファイルがないので、404エラーになってしまう。
+  * そのため、サーバー側でこのパスはSPAのHTMLを返すなどの処理が必要になる。
+    * 強いところだとサーバーサイドでレンダリングまでやってしまうこともある。
+* 何らかの手段でリダイレクトを行える。
+  * ファイルが存在しなくともちゃんとSPAのトップページにリダイレクトができれば、いろいろ対応が可能になる。
+
+今回GitHub PagesはSPAに対応していませんが、404ページを自作できるのでそれを上手く使ってSPAっぽい挙動にします。
+
+一方JavaScript側では次のような処理が必要になるでしょう。
+
+* 最初のレンダリングの後は全てJavaScriptで管理する。
+* リンクをクリックしてもページ遷移のリクエストをサーバーに送らずにコンテンツの更新を行う。
+  * サーバーにはコンテンツだけ要求する。
+* ブラウザの戻るボタンを押しても適切にコンテンツを更新する。
 
 ここら辺ができればSPAと名乗れそうです。
 
@@ -37,10 +64,13 @@ SPAは `Single Page Application` の略で、Webページの一つの形です�
 とりあえず以下のようなSPAを作ります。
 
 * URL末尾に `.md` をつけたMarkdownファイルを読み込んでページに表示する。
-  * 今回は仕上げまでソースだけ表示する。
-  * `/` で終わる場合は `index` というファイル名として扱う。
+  * 例えばURLが `https://domain/XXX` であれば、`https://domain/XXX.md` を読み込むということ。
+  * もしURLが `/` で終わる場合は `index` というコンテンツへのアクセスとして扱う。
+  * 今回は最後の仕上げ以外はMarkdownのソースを表示することとする。
 * リンクを踏んでもページを読み込むのではなくコンテンツのみ読み込んで一部だけ再レンダリングする。
+  * リンクを見つけてブラウザから処理を奪う。
 * ブラウザの戻るなどが発生しても、再読込せず再レンダリングする。
+  * ブラウザの履歴を操作する。
 
 ## SPA作成
 
@@ -55,30 +85,31 @@ SPAは `Single Page Application` の略で、Webページの一つの形です�
 * ブラウザ履歴を制御するページ
 * 仕上げ
 
-GitHub Pagesで作るので、ディレクトリ構成は以下になります。
+GitHub Pagesで作るので、フォルダ構成は以下になります。
 
-* /docs/
-  * 0/
-  * 1/
-  * :
-  * 5/
+```text
+/docs/         ... GitHub Pagesのドキュメントルート
+  0/           ... 各バージョンのSPAのドキュメントルート
+    index.html ... SPA本体
+    index.md   ... SPAのトップページのコンテンツ
+    *.md       ... その他Markdownファイルはコンテンツとして適当に入れる
+  1/
+  :
+  5/
+```
+
+URLは次のようになるはずです。
+
+```text
+http://USERNAME.github.io/SPA_Sample/NUM/
+```
 
 またリポジトリは `SPA_Sample` という想定で作っているので、ごく一部この値が入っている箇所があります。
 （可能な限り取り除いている。）
 
 ### index.md の内容を取ってきて表示するだけのページ
 
-初めの目標は `index.md` を取得して表示することとします。
-
-今回は以下のような構造で作ります。
-
-* `http://USERNAME.github.io/SPA_Sample/NUM/` をベースのアドレスとする。
-  * GitHub Pagesでサクッと動かすことを目標とする。
-  * NUMはサンプルの番号で、初めは 0 で機能を追加するたびに数値を増やしていく。
-  * Markdownのファイルもサンプルごとに同じフォルダにまとめておくことにする。
-
-ではまずページのレンダリングを行います。
-今回は必ず `/SPA_Sample/0/index.md` を読み込んで表示することにします。
+初めの目標は `http://USERNAME.github.io/SPA_Sample/0/` にアクセスした時 `/SPA_Sample/0/index.md` を読み込んで表示することにします。
 
 #### /docs/0/index.html
 
@@ -163,11 +194,13 @@ test
 
 #### 動作サンプル
 
+サンプルは実際に設置してあるSPAがあるのでそちらを貼っておきます。
+
 https://hirokimiyaoka.github.io/SPA_Sample/0/
 
 とりあえずMarkdownのソースを表示できているのが確認できます。
 
-まだまだSPAっぽさは何一つ感じません。
+単にMarkdownのファイルを読み込んでいるだけなので、まだまだSPAっぽさは感じません。
 
 ### URLに応じて読み込むファイルを変えるページ
 
@@ -191,6 +224,7 @@ https://hirokimiyaoka.github.io/SPA_Sample/0/
 ここら辺からGitHub Pagesで可動するJekyllが邪魔になる場合があるので無効化します。
 
 `/docs/.nojekyll` という空ファイルを設置しておいてください。
+これで機能を無効化することが出来ます。
 
 #### 404対策
 
@@ -218,7 +252,7 @@ https://hirokimiyaoka.github.io/SPA_Sample/0/
 
 ```html
 <!DOCTYPE html>
-<html lang="ja"><head><title>Redirect</title><script>sessionStorage.redirect=location.pathname;location.href=location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );</script></head></html>
+<html lang="ja"><head><title>Redirect</title><script>sessionStorage.redirect=location.pathname;location.href=location.pathname;</script></head></html>
 ```
 
 差分で特に重要なのは、`sessionStorage.redirect=location.pathname;` とリダイレクトです。
