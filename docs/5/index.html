@@ -79,16 +79,14 @@ class App {
 	}
 
 	// リンクを探してページ遷移処理に書き換えます。
-	convertAnchor( target )
-	{
+	convertAnchor( target ) {
 		// targetに指定がない場合は、document.bodyを指定します。
 		if ( target === undefined ) { target = document.body }
 		// ベースとなるURLを作ります。
 		const baseurl = location.protocol + '//' + location.host + this.baseurl;
 		// <a>を探します。
 		const anchors = target.getElementsByTagName( 'a' );
-		for ( let i= 0 ; i < anchors.length ; ++i )
-		{
+		for ( let i= 0 ; i < anchors.length ; ++i ) {
 			// hrefが存在しないかonclickが設定されているかtargetが指定されている場合は無視します。
 			if ( !anchors[ i ].href || anchors[ i ].onclick || anchors[ i ].target ) { continue; }
 			// <a>のhrefはURLのフルパスが記載されているので、制御下のURLかどうか判定します。

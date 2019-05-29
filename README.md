@@ -415,7 +415,7 @@ URLに応じて適切なコンテンツの表示ができ、SPAに近づきつ�
 
 さて、先程のページは問題点があります。
 URLに応じたコンテンツは表示できたものの、リダイレクトによって全てのページURLがおなじになってしまいます。
-このままでは良くないのでURLを元に戻す作業をしたいと思います。
+このままでは良くないのでURLをリダイレクト前の状態に戻す作業をしたいと思います。
 
 #### コピー
 
@@ -527,17 +527,20 @@ https://hirokimiyaoka.github.io/SPA_Sample/2/a
 
 ついにリンクを制御します。
 
-リンクはクリックすると普通にサーバーにアクセスしてしまうため、ここの制御を乗っ取ってJavaScriptで制御することで、SPAの挙動にすることが出来ます。
+リンクはクリックすると普通にサーバーにWebページのリクエストをしてしまいます。
+ここのブラウザデフォルトの挙動を止め、JavaScriptで制御できればコンテンツの更新のみが可能になりそうです。
 
 そのためには2つの作業が必要です。
 
-* 目的のパスを渡すとコンテンツを更新する仕組みを作る
-* リンクを探してページ遷移の処理を行う仕組みを作る
+* 目的のパスを渡すとコンテンツを更新する仕組みを作る。
+  * `https://hirokimiyaoka.github.io/SPA_Sample/3/` が制御下なら、目的のパスは `/a` 等になる。
+  * `/a` を渡すと `/SPA_Sample/3/a` のファイルを読み込む。
+* リンクを探してページ遷移の処理を行う仕組みを作る。
 
 #### 目的のパスを渡すとコンテンツを更新する仕組みを作る
 
 今まで `Fetch()` や `Render()` という関数を用意してきましたが、このままでは多少使いづらいです。
-ここで一気にSPAのクラスを作って、そこで管理できるように作り変えます。
+ここで一気にSPAの制御を行うクラスを作ってそこで管理できるように作り変えます。
 
 `/docs/2/` をフォルダごとコピーして `3` にリネームします。
 
@@ -642,6 +645,7 @@ document.addEventListener( 'DOMContentLoaded', Init );
 
 次に、ページ遷移が可能になりました。
 `app.gotoPage( パス )` でアドレスバーをそのパスのURLに変更し、コンテンツも取得してレンダリングすることができるようになっています。
+（パスは `https://hirokimiyaoka.github.io/SPA_Sample/3/XXXXX` がURLの場合 `/XXXXX` を渡す。）
 
 後は、どうにかしてリンクを自分の制御下に置きたいです。
 
@@ -656,7 +660,7 @@ document.addEventListener( 'DOMContentLoaded', Init );
   * 普通別のウィンドウ・タブにページが新たに開かれるので、自分の制御下から外れる。
 
 これらの条件を満たすHTML要素に対して何かしらの処理をすれば良さそうです。
-今回は `onclick` を無視するので、条件を満たす `<a>` を見つけたら `onclick` にページ遷移する関数を与えれば `addEventListener()` 利用時と異なり、自分の処理が二重に登録されることもなく上手くいきそうな気がします。
+今回は `onclick` を無視するので、条件を満たす `<a>` を見つけたら `onclick` にページ遷移する関数を与えれば `addEventListener()` 利用時と異なり、複数回実行されても自分の処理が多重登録されることもなく上手くいきそうな気がします。
 
 では実装です。
 
@@ -676,16 +680,14 @@ class App {
 	}
 
 	// リンクを探してページ遷移処理に書き換えます。
-	convertAnchor( target )
-	{
+	convertAnchor( target ) {
 		// targetに指定がない場合は、document.bodyを指定します。
 		if ( target === undefined ) { target = document.body }
 		// ベースとなるURLを作ります。
 		const baseurl = location.protocol + '//' + location.host + this.baseurl;
 		// <a>を探します。
 		const anchors = target.getElementsByTagName( 'a' );
-		for ( let i= 0 ; i < anchors.length ; ++i )
-		{
+		for ( let i= 0 ; i < anchors.length ; ++i ) {
 			// hrefが存在しないかonclickが設定されているかtargetが指定されている場合は無視します。
 			if ( !anchors[ i ].href || anchors[ i ].onclick || anchors[ i ].target ) { continue; }
 			// <a>のhrefはURLのフルパスが記載されているので、制御下のURLかどうか判定します。
@@ -889,16 +891,14 @@ class App {
 	}
 
 	// リンクを探してページ遷移処理に書き換えます。
-	convertAnchor( target )
-	{
+	convertAnchor( target ) {
 		// targetに指定がない場合は、document.bodyを指定します。
 		if ( target === undefined ) { target = document.body }
 		// ベースとなるURLを作ります。
 		const baseurl = location.protocol + '//' + location.host + this.baseurl;
 		// <a>を探します。
 		const anchors = target.getElementsByTagName( 'a' );
-		for ( let i= 0 ; i < anchors.length ; ++i )
-		{
+		for ( let i= 0 ; i < anchors.length ; ++i ) {
 			// hrefが存在しないかonclickが設定されているかtargetが指定されている場合は無視します。
 			if ( !anchors[ i ].href || anchors[ i ].onclick || anchors[ i ].target ) { continue; }
 			// <a>のhrefはURLのフルパスが記載されているので、制御下のURLかどうか判定します。
