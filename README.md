@@ -120,13 +120,13 @@ http://USER.github.io/REPOSITORY/NUM/
 	<title>SPA sample 0</title>
 	<script>
 // コンテンツを取得します。
-function Fetch( baseurl, path ) {
+function Fetch( basepath, path ) {
 	// pathの簡易チェックを行います。
 	if ( path === '/' ) { path += 'index'; }
 	// pathに .md を追加します。
 	path += '.md';
 	// fetch()を使いやすいようにラップします。
-	return fetch( baseurl + path ).then( ( result ) => {
+	return fetch( basepath + path ).then( ( result ) => {
 		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
@@ -150,7 +150,7 @@ function Init() {
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
 	// http://USER.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
 	// location.pathname は /REPOSITORY/NUM/XXXXX の部分を取得可能です。
-	const baseurl = location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+	const basepath = location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 	// 今度はURLからSPAにとってのパスを取得します。
 	// /REPOSITORY/NUM/XXXXX の /XXXXX の部分ですが、この中には/が入っている可能性もあります。
@@ -158,7 +158,7 @@ function Init() {
 	const path = '/';
 
 	// コンテンツを取得します。
-	Fetch( baseurl, path ).then( ( md ) => {
+	Fetch( basepath, path ).then( ( md ) => {
 		// 取得したコンテンツをレンダリングする。
 		Render( contents, md );
 	} );
@@ -174,7 +174,7 @@ document.addEventListener( 'DOMContentLoaded', Init );
 </html>
 ```
 
-今回まず無視しても良いところは `baseurl` の作成部分です。
+今回まず無視しても良いところは `basepath` の作成部分です。
 やっていることは `http://USER.github.io/REPOSITORY/NUM/XXXX` というURLだった場合、取得できるパスは `/REPOSITORY/NUM/XXXX` ですがここから `/REPOSITORY/NUM` を抽出しています。
 GitHub Pagesで使うことを前提としているので、あえてこの部分を抽出して利用します。
 （この作業は普通のSPAを作る時には必要ないことがほとんどかと思います。）
@@ -323,7 +323,7 @@ a page!!!!
 
 ```js
 // コンテンツを取得します。
-function Fetch( baseurl, path ) {
+function Fetch( basepath, path ) {
 	// pathの簡易チェックを行います。
 	if ( !path ) { path = '/'; }
 	// pathの末尾が / の場合は index を追加します。
@@ -331,7 +331,7 @@ function Fetch( baseurl, path ) {
 	// pathに .md を追加します。
 	path += '.md';
 	// fetch()を使いやすいようにラップします。
-	return fetch( baseurl + path ).then( ( result ) => {
+	return fetch( basepath + path ).then( ( result ) => {
 		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
@@ -361,14 +361,14 @@ function Init() {
 
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
 	// http://USER.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
-	const baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+	const basepath = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 	// 今度はURLからSPAにとってのパスを取得します。
 	// /REPOSITORY/NUM/XXXXX の /XXXXX の部分ですが、この中には/が入っている可能性もあります。
 	const path = pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
 
 	// コンテンツを取得します。
-	Fetch( baseurl, path ).then( ( md ) => {
+	Fetch( basepath, path ).then( ( md ) => {
 		// 取得したコンテンツをレンダリングする。
 		Render( contents, md );
 	} ).catch( ( error ) => {
@@ -432,7 +432,7 @@ URLに応じたコンテンツは表示できたものの、リダイレクト�
 	<title>SPA sample 2</title>
 	<script>
 // コンテンツを取得します。
-function Fetch( baseurl, path ) {
+function Fetch( basepath, path ) {
 	// pathの簡易チェックを行います。
 	if ( !path ) { path = '/'; }
 	// pathの末尾が / の場合は index を追加します。
@@ -440,7 +440,7 @@ function Fetch( baseurl, path ) {
 	// pathに .md を追加します。
 	path += '.md';
 	// fetch()を使いやすいようにラップします。
-	return fetch( baseurl + path ).then( ( result ) => {
+	return fetch( basepath + path ).then( ( result ) => {
 		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
@@ -470,7 +470,7 @@ function Init() {
 
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
 	// http://USER.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
-	const baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+	const basepath = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 	// 今度はURLからSPAにとってのパスを取得します。
 	// /REPOSITORY/NUM/XXXXX の /XXXXX の部分ですが、この中には/が入っている可能性もあります。
@@ -480,7 +480,7 @@ function Init() {
 	history.replaceState( null, '', pathname );
 
 	// コンテンツを取得します。
-	Fetch( baseurl, path ).then( ( md ) => {
+	Fetch( basepath, path ).then( ( md ) => {
 		// 取得したコンテンツをレンダリングする。
 		Render( contents, md );
 	} ).catch( ( error ) => {
@@ -566,7 +566,7 @@ class App {
 		const pathname = ( sessionStorage.redirect || location.pathname ) + '';
 		delete sessionStorage.redirect;
 
-		this.baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+		this.basepath = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 		// ページのパスを取得します。
 		const path = pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
@@ -584,7 +584,7 @@ class App {
 
 	// パスを元にコンテンツのレンダリングを行います。
 	renderPage( path ) {
-		return Fetch( this.baseurl, path ).then( ( md ) => {
+		return Fetch( this.basepath, path ).then( ( md ) => {
 			this.render( md );
 		} ).catch( ( error ) => {
 			// 何かしらのエラーが発生しました。
@@ -595,14 +595,14 @@ class App {
 	// 目的のページに遷移します。
 	gotoPage( path ) {
 		// 履歴に追加します。
-		history.pushState( null, '', this.baseurl + path );
+		history.pushState( null, '', this.basepath + path );
 
 		return this.renderPage( path );
 	}
 }
 
 // コンテンツを取得します。
-function Fetch( baseurl, path ) {
+function Fetch( basepath, path ) {
 	// pathの簡易チェックを行います。
 	if ( !path ) { path = '/'; }
 	// pathの末尾が / の場合は index を追加します。
@@ -610,7 +610,7 @@ function Fetch( baseurl, path ) {
 	// pathに .md を追加します。
 	path += '.md';
 	// fetch()を使いやすいようにラップします。
-	return fetch( baseurl + path ).then( ( result ) => {
+	return fetch( basepath + path ).then( ( result ) => {
 		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
@@ -700,7 +700,7 @@ class App {
 		// targetに指定がない場合は、document.bodyを指定します。
 		if ( target === undefined ) { target = document.body }
 		// ベースとなるURLを作ります。
-		const baseurl = location.protocol + '//' + location.host + this.baseurl;
+		const baseurl = location.protocol + '//' + location.host + this.basepath;
 		// <a>を探します。
 		const anchors = target.getElementsByTagName( 'a' );
 		for ( let i= 0 ; i < anchors.length ; ++i ) {
@@ -782,7 +782,7 @@ class App {
 		const pathname = ( sessionStorage.redirect || location.pathname ) + '';
 		delete sessionStorage.redirect;
 
-		this.baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+		this.basepath = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 		// ブラウザ履歴が変更される時にレンダリングを行います。
 		window.addEventListener( 'popstate', () => { return this.onPopState(); }, false );
@@ -799,7 +799,7 @@ class App {
 	// ブラウザ履歴変更時の処理です。
 	onPopState() {
 		// URLはすでに変更済みなので、現在のURLからレンダリング用のパスを取り出してレンダリングを行います。
-		this.renderPage( location.pathname.replace( this.baseurl, '' ) );
+		this.renderPage( location.pathname.replace( this.basepath, '' ) );
 	}
 
 
@@ -862,7 +862,7 @@ class App {
 		const pathname = ( sessionStorage.redirect || location.pathname ) + '';
 		delete sessionStorage.redirect;
 
-		this.baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+		this.basepath = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 		// ブラウザ履歴が変更される時にレンダリングを行います。
 		window.addEventListener( 'popstate', () => { return this.onPopState(); }, false );
@@ -879,7 +879,7 @@ class App {
 	// ブラウザ履歴変更時の処理です。
 	onPopState() {
 		// URLはすでに変更済みなので、現在のURLからレンダリング用のパスを取り出してレンダリングを行います。
-		this.renderPage( location.pathname.replace( this.baseurl, '' ) );
+		this.renderPage( location.pathname.replace( this.basepath, '' ) );
 	}
 
 	// データを元にコンテンツのレンダリングを行います。
@@ -893,7 +893,7 @@ class App {
 
 	// パスを元にコンテンツのレンダリングを行います。
 	renderPage( path ) {
-		return Fetch( this.baseurl, path ).then( ( md ) => {
+		return Fetch( this.basepath, path ).then( ( md ) => {
 			this.render( md );
 		} ).catch( ( error ) => {
 			// 何かしらのエラーが発生しました。
@@ -904,7 +904,7 @@ class App {
 	// 目的のページに遷移します。
 	gotoPage( path ) {
 		// 履歴に追加します。
-		history.pushState( null, '', this.baseurl + path );
+		history.pushState( null, '', this.basepath + path );
 
 		return this.renderPage( path );
 	}
@@ -925,7 +925,7 @@ class App {
 		// targetに指定がない場合は、document.bodyを指定します。
 		if ( target === undefined ) { target = document.body }
 		// ベースとなるURLを作ります。
-		const baseurl = location.protocol + '//' + location.host + this.baseurl;
+		const baseurl = location.protocol + '//' + location.host + this.basepath;
 		// <a>を探します。
 		const anchors = target.getElementsByTagName( 'a' );
 		for ( let i= 0 ; i < anchors.length ; ++i ) {
@@ -941,7 +941,7 @@ class App {
 }
 
 // コンテンツを取得します。
-function Fetch( baseurl, path ) {
+function Fetch( basepath, path ) {
 	// pathの簡易チェックを行います。
 	if ( !path ) { path = '/'; }
 	// pathの末尾が / の場合は index を追加します。
@@ -949,7 +949,7 @@ function Fetch( baseurl, path ) {
 	// pathに .md を追加します。
 	path += '.md';
 	// fetch()を使いやすいようにラップします。
-	return fetch( baseurl + path ).then( ( result ) => {
+	return fetch( basepath + path ).then( ( result ) => {
 		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }

@@ -15,7 +15,7 @@ class App {
 		const pathname = ( sessionStorage.redirect || location.pathname ) + '';
 		delete sessionStorage.redirect;
 
-		this.baseurl = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+		this.basepath = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 		// ページのパスを取得します。
 		const path = pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
@@ -33,7 +33,7 @@ class App {
 
 	// パスを元にコンテンツのレンダリングを行います。
 	renderPage( path ) {
-		return Fetch( this.baseurl, path ).then( ( md ) => {
+		return Fetch( this.basepath, path ).then( ( md ) => {
 			this.render( md );
 		} ).catch( ( error ) => {
 			// 何かしらのエラーが発生しました。
@@ -44,7 +44,7 @@ class App {
 	// 目的のページに遷移します。
 	gotoPage( path ) {
 		// 履歴に追加します。
-		history.pushState( null, '', this.baseurl + path );
+		history.pushState( null, '', this.basepath + path );
 
 		return this.renderPage( path );
 	}
@@ -65,7 +65,7 @@ class App {
 		// targetに指定がない場合は、document.bodyを指定します。
 		if ( target === undefined ) { target = document.body }
 		// ベースとなるURLを作ります。
-		const baseurl = location.protocol + '//' + location.host + this.baseurl;
+		const baseurl = location.protocol + '//' + location.host + this.basepath;
 		// <a>を探します。
 		const anchors = target.getElementsByTagName( 'a' );
 		for ( let i= 0 ; i < anchors.length ; ++i ) {
@@ -81,7 +81,7 @@ class App {
 }
 
 // コンテンツを取得します。
-function Fetch( baseurl, path ) {
+function Fetch( basepath, path ) {
 	// pathの簡易チェックを行います。
 	if ( !path ) { path = '/'; }
 	// pathの末尾が / の場合は index を追加します。
@@ -89,7 +89,7 @@ function Fetch( baseurl, path ) {
 	// pathに .md を追加します。
 	path += '.md';
 	// fetch()を使いやすいようにラップします。
-	return fetch( baseurl + path ).then( ( result ) => {
+	return fetch( basepath + path ).then( ( result ) => {
 		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
