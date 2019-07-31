@@ -153,7 +153,7 @@ function Init() {
 	const contents = document.getElementById( 'contents' );
 
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
-	// http://USER.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
+	// http://USER.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM だけ抽出します。
 	// location.pathname は /REPOSITORY/NUM/XXXXX の部分を取得可能です。
 	const basepath = location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
@@ -365,7 +365,7 @@ function Init() {
 	delete sessionStorage.redirect;
 
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
-	// http://USER.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
+	// http://USER.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM だけ抽出します。
 	const basepath = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 	// 今度はURLからSPAにとってのパスを取得します。
@@ -474,7 +474,7 @@ function Init() {
 	delete sessionStorage.redirect;
 
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
-	// http://USER.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM/ だけ抽出します。
+	// http://USER.github.io/REPOSITORY/NUM/XXXXX から /REPOSITORY/NUM だけ抽出します。
 	const basepath = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 	// 今度はURLからSPAにとってのパスを取得します。
@@ -702,8 +702,8 @@ class App {
 
 	// リンクを探してページ遷移処理に書き換えます。
 	convertAnchor( target ) {
-		// targetに指定がない場合は、document.bodyを指定します。
-		if ( target === undefined ) { target = document.body }
+		// targetに指定がない場合は、this.contentsを指定します。
+		if ( target === undefined ) { target = this.contents; }
 		// ベースとなるURLを作ります。
 		const baseurl = location.protocol + '//' + location.host + this.basepath;
 		// <a>を探します。
@@ -728,7 +728,7 @@ function Init() {
 	const app = new App( document.getElementById( 'contents' ) );
 
 	// 一度はページ全体のリンクを調べます。
-	app.convertAnchor();
+	app.convertAnchor( document.body );
 }
 ```
 
@@ -848,7 +848,7 @@ https://github.com/commonmark/commonmark.js/
 <html lang="ja">
 <head>
 	<meta charset="utf-8">
-	<title>SPA sample 4</title>
+	<title>SPA sample 5</title>
 	<script src="./commonmark.min.js"></script>
 	<script>
 // SPAのシステムです。
@@ -892,7 +892,7 @@ class App {
 		this.contents.innerHTML = this.writer.render( this.reader.parse( data ) );
 
 		// コンテンツが更新されたので、コンテンツ内のリンクを探して制御下に置きます。
-		this.convertAnchor( this.contents );
+		this.convertAnchor();
 	}
 
 	// パスを元にコンテンツのレンダリングを行います。
@@ -926,8 +926,8 @@ class App {
 
 	// リンクを探してページ遷移処理に書き換えます。
 	convertAnchor( target ) {
-		// targetに指定がない場合は、document.bodyを指定します。
-		if ( target === undefined ) { target = document.body }
+		// targetに指定がない場合は、this.contentsを指定します。
+		if ( target === undefined ) { target = this.contents; }
 		// ベースとなるURLを作ります。
 		const baseurl = location.protocol + '//' + location.host + this.basepath;
 		// <a>を探します。
@@ -970,7 +970,7 @@ function Init() {
 	const app = new App( document.getElementById( 'contents' ) );
 
 	// 一度はページ全体のリンクを調べます。
-	app.convertAnchor();
+	app.convertAnchor( document.body );
 }
 
 // document.getElementById() を使っても大丈夫になったら初期化関数を実行する。

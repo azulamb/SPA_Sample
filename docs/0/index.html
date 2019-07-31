@@ -5,13 +5,13 @@
 	<title>SPA sample 0</title>
 	<script>
 // コンテンツを取得します。
-function Fetch( baseurl, path ) {
+function Fetch( basepath, path ) {
 	// pathの簡易チェックを行います。
 	if ( path === '/' ) { path += 'index'; }
 	// pathに .md を追加します。
 	path += '.md';
 	// fetch()を使いやすいようにラップします。
-	return fetch( baseurl + path ).then( ( result ) => {
+	return fetch( basepath + path ).then( ( result ) => {
 		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 		if ( result.ok ) { return result.text(); }
@@ -30,9 +30,9 @@ function Init() {
 	const contents = document.getElementById( 'contents' );
 
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
-	// http://USERNAME.github.io/SPA_Sample/NUM/XXXXX から /SPA_Sample/NUM/ だけ抽出します。
+	// http://USERNAME.github.io/SPA_Sample/NUM/XXXXX から /SPA_Sample/NUM だけ抽出します。
 	// location.pathname は /SPA_Sample/NUM/XXXXX の部分を取得可能です。
-	const baseurl = location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+	const basepath = location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
 
 	// 今度はURLからSPAにとってのパスを取得します。
 	// /SPA_Sample/NUM/XXXXX の /XXXXX の部分ですが、この中には/が入っている可能性もあります。
@@ -40,7 +40,7 @@ function Init() {
 	const path = '/';
 
 	// コンテンツを取得します。
-	Fetch( baseurl, path ).then( ( md ) => {
+	Fetch( basepath, path ).then( ( md ) => {
 		// 取得したコンテンツをレンダリングする。
 		Render( contents, md );
 	} );
