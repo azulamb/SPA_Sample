@@ -713,13 +713,14 @@ class App {
 		// <a>を探します。
 		const anchors = target.getElementsByTagName('a');
 		for (let i = 0; i < anchors.length; ++i) {
+			const anchor = anchors[i];
 			// hrefが存在しないかonclickが設定されているかtargetが指定されている場合は無視します。
-			if (!anchors[i].href || anchors[i].onclick || anchors[i].target) { continue; }
+			if (!anchor.href || anchor.onclick || anchor.target) { continue; }
 			// <a>のhrefはURLのフルパスが記載されているので、制御下のURLかどうか判定します。
 			// URLがbaseurlから始まっていない場合は無視します。
-			if (anchors[i].href.indexOf(baseurl) !== 0) { continue; }
+			if (anchor.href.indexOf(baseurl) !== 0) { continue; }
 
-			anchors[i].onclick = this.jumpPage(anchors[i].href.replace(baseurl, ''));
+			anchor.onclick = this.jumpPage(anchor.href.replace(baseurl, ''));
 		}
 	}
 }
@@ -957,13 +958,14 @@ class App {
 		// <a>を探します。
 		const anchors = target.getElementsByTagName('a');
 		for (let i = 0; i < anchors.length; ++i) {
+			const anchor = anchors[i];
 			// hrefが存在しないかonclickが設定されているかtargetが指定されている場合は無視します。
-			if (!anchors[i].href || anchors[i].onclick || anchors[i].target) { continue; }
+			if (!anchor.href || anchor.onclick || anchor.target) { continue; }
 			// <a>のhrefはURLのフルパスが記載されているので、制御下のURLかどうか判定します。
 			// URLがbaseurlから始まっていない場合は無視します。
-			if (anchors[i].href.indexOf(baseurl) !== 0) { continue; }
+			if (anchor.href.indexOf(baseurl) !== 0) { continue; }
 
-			anchors[i].onclick = this.jumpPage(anchors[i].href.replace(baseurl, ''));
+			anchor.onclick = this.jumpPage(anchor.href.replace(baseurl, ''));
 		}
 	}
 }
