@@ -708,8 +708,6 @@ class App {
 
 	// リンクを探してページ遷移処理に書き換えます。
 	convertAnchor(target) {
-		// targetに指定がない場合は、this.contentsを指定します。
-		if (target === undefined) { target = this.contents; }
 		// ベースとなるURLを作ります。
 		const baseurl = location.protocol + '//' + location.host + this.basepath;
 		// <a>を探します。

@@ -49,7 +49,7 @@ class App {
 			// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
 			if (result.ok) { return result.text(); }
 			// 結果をテキストにして取り出し、エラーとして処理します。
-			return result.text().catch((error) => { return error; }).then((result) => {
+			return result.text().then((result) => {
 				throw new Error(result);
 			});
 		});
@@ -91,8 +91,6 @@ class App {
 
 	// リンクを探してページ遷移処理に書き換えます。
 	convertAnchor(target) {
-		// targetに指定がない場合は、this.contentsを指定します。
-		if (target === undefined) { target = this.contents; }
 		// ベースとなるURLを作ります。
 		const baseurl = location.protocol + '//' + location.host + this.basepath;
 		// <a>を探します。
