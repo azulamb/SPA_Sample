@@ -7,123 +7,123 @@
 // SPAのシステムです。
 class App {
 	// SPAで更新するHTML要素を設定します。
-	constructor( contents ) {
+	constructor(contents) {
 		// コンテンツを更新するHTML要素を持っておきます。
 		this.contents = contents;
 
 		// ページに来た初回のレンダリング周りの処理を行います。
-		const pathname = ( sessionStorage.redirect || location.pathname ) + '';
+		const pathname = (sessionStorage.redirect || location.pathname) + '';
 		delete sessionStorage.redirect;
 
-		this.basepath = pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+		this.basepath = pathname.replace(/^(\/[^\/]+\/[^\/]+).*$/, '$1');
 
 		// ブラウザ履歴が変更される時にレンダリングを行います。
-		window.addEventListener( 'popstate', () => { return this.onPopState(); }, false );
+		window.addEventListener('popstate', () => { return this.onPopState(); }, false);
 
 		// ページのパスを取得します。
-		const path = pathname.replace( /^\/[^\/]+\/[^\/]+(.*)$/, '$1' );
+		const path = pathname.replace(/^\/[^\/]+\/[^\/]+(.*)$/, '$1');
 
 		// アドレスバーのURLを書き換えます。書き換えるだけなので履歴は残りません。
-		history.replaceState( null, '', pathname );
+		history.replaceState(null, '', pathname);
 
-		this.renderPage( path );
+		this.renderPage(path);
 	}
 
 	// ブラウザ履歴変更時の処理です。
 	onPopState() {
 		// URLはすでに変更済みなので、現在のURLからレンダリング用のパスを取り出してレンダリングを行います。
-		this.renderPage( location.pathname.replace( this.basepath, '' ) );
+		this.renderPage(location.pathname.replace(this.basepath, ''));
 	}
 
 	// データを元にコンテンツのレンダリングを行います。
-	render( data ) {
+	render(data) {
 		this.contents.textContent = data;
 	}
 
 	// パスを元にコンテンツのレンダリングを行います。
-	renderPage( path ) {
-		return Fetch( this.basepath, path ).then( ( md ) => {
-			this.render( md );
-		} ).catch( ( error ) => {
+	renderPage(path) {
+		return Fetch(this.basepath, path).then((md) => {
+			this.render(md);
+		}).catch((error) => {
 			// 何かしらのエラーが発生しました。
-			this.render( '# Error' );
-		} );
+			this.render('# Error');
+		});
 	}
 
 	// 目的のページに遷移します。
-	gotoPage( path ) {
+	gotoPage(path) {
 		// 履歴に追加します。
-		history.pushState( null, '', this.basepath + path );
+		history.pushState(null, '', this.basepath + path);
 
-		return this.renderPage( path );
+		return this.renderPage(path);
 	}
 
 	// 目的のページに遷移する関数を作ります。
-	jumpPage( path ) {
-		return ( e ) => {
+	jumpPage(path) {
+		return (e) => {
 			// クリック時の諸々のデフォルト処理を止めます。これでページ遷移を潰します。
 			e.preventDefault();
 			// SPAでのページ遷移を行います。
-			this.gotoPage( path );
+			this.gotoPage(path);
 			return false;
 		};
 	}
 
 	// リンクを探してページ遷移処理に書き換えます。
-	convertAnchor( target ) {
+	convertAnchor(target) {
 		// targetに指定がない場合は、this.contentsを指定します。
-		if ( target === undefined ) { target = this.contents; }
+		if (target === undefined) { target = this.contents; }
 		// ベースとなるURLを作ります。
 		const baseurl = location.protocol + '//' + location.host + this.basepath;
 		// <a>を探します。
-		const anchors = target.getElementsByTagName( 'a' );
-		for ( let i= 0 ; i < anchors.length ; ++i ) {
+		const anchors = target.getElementsByTagName('a');
+		for (let i = 0; i < anchors.length; ++i) {
 			// hrefが存在しないかonclickが設定されているかtargetが指定されている場合は無視します。
-			if ( !anchors[ i ].href || anchors[ i ].onclick || anchors[ i ].target ) { continue; }
+			if (!anchors[i].href || anchors[i].onclick || anchors[i].target) { continue; }
 			// <a>のhrefはURLのフルパスが記載されているので、制御下のURLかどうか判定します。
 			// URLがbaseurlから始まっていない場合は無視します。
-			if ( anchors[ i ].href.indexOf( baseurl ) !== 0 ) { continue; }
+			if (anchors[i].href.indexOf(baseurl) !== 0) { continue; }
 
-			anchors[ i ].onclick = this.jumpPage( anchors[ i ].href.replace( baseurl, '' ) );
+			anchors[i].onclick = this.jumpPage(anchors[i].href.replace(baseurl, ''));
 		}
 	}
 }
 
 // コンテンツを取得します。
-function Fetch( basepath, path ) {
+function Fetch(basepath, path) {
 	// pathの簡易チェックを行います。
-	if ( !path ) { path = '/'; }
+	if (!path) { path = '/'; }
 	// pathの末尾が / の場合は index を追加します。
-	if ( path.match( /\/$/ ) ) { path += 'index'; }
+	if (path.match(/\/$/)) { path += 'index'; }
 	// pathに .md を追加します。
 	path += '.md';
 	// fetch()を使いやすいようにラップします。
-	return fetch( basepath + path ).then( ( result ) => {
+	return fetch(basepath + path).then((result) => {
 		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
-		if ( result.ok ) { return result.text(); }
+		if (result.ok) { return result.text(); }
 		// 結果をテキストにして取り出し、エラーとして処理します。
-		return result.text().catch( ( error ) => { return error; } ).then( ( result ) => {
-			throw new Error( result );
-		} );
-	} );
+		return result.text().catch((error) => { return error; }).then((result) => {
+			throw new Error(result);
+		});
+	});
 }
 
 // 初期化部分。
 function Init() {
 	// SPAの制御を行うクラスをインスタンス化します。
-	const app = new App( document.getElementById( 'contents' ) );
+	const app = new App(document.getElementById('contents'));
 
 	// 一度はページ全体のリンクを調べます。
-	app.convertAnchor( document.body );
+	app.convertAnchor(document.body);
 }
 
-// document.getElementById() を使っても大丈夫になったら初期化関数を実行する。
-document.addEventListener( 'DOMContentLoaded', Init );
+// document.getElementById() を使っても大丈夫になったら初期化関数を実行します。
+document.addEventListener('DOMContentLoaded', Init);
 	</script>
 </head>
 <body>
-<pre id="contents"></pre>
-<a href="./a">a.md</a>
+	<pre id="contents"></pre>
+	<a href="./a">a.md</a>
 </body>
 </html>

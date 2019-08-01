@@ -169,7 +169,7 @@ function Init() {
 	} );
 }
 
-// document.getElementById() を使っても大丈夫になったら初期化関数を実行する。
+// document.getElementById() を使っても大丈夫になったら初期化関数を実行します。
 document.addEventListener( 'DOMContentLoaded', Init );
 	</script>
 </head>
@@ -495,7 +495,7 @@ function Init() {
 	} );
 }
 
-// document.getElementById() を使っても大丈夫になったら初期化関数を実行する。
+// document.getElementById() を使っても大丈夫になったら初期化関数を実行します。
 document.addEventListener( 'DOMContentLoaded', Init );
 	</script>
 </head>
@@ -632,7 +632,7 @@ function Init() {
 	const app = new App( document.getElementById( 'contents' ) );
 }
 
-// document.getElementById() を使っても大丈夫になったら初期化関数を実行する。
+// document.getElementById() を使っても大丈夫になったら初期化関数を実行します。
 document.addEventListener( 'DOMContentLoaded', Init );
 	</script>
 </head>
@@ -973,7 +973,7 @@ function Init() {
 	app.convertAnchor( document.body );
 }
 
-// document.getElementById() を使っても大丈夫になったら初期化関数を実行する。
+// document.getElementById() を使っても大丈夫になったら初期化関数を実行します。
 document.addEventListener( 'DOMContentLoaded', Init );
 	</script>
 </head>

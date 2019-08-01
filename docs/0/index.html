@@ -5,34 +5,34 @@
 	<title>SPA sample 0</title>
 	<script>
 // コンテンツを取得します。
-function Fetch( basepath, path ) {
+function Fetch(basepath, path) {
 	// pathの簡易チェックを行います。
-	if ( path === '/' ) { path += 'index'; }
+	if (path === '/') { path += 'index'; }
 	// pathに .md を追加します。
 	path += '.md';
 	// fetch()を使いやすいようにラップします。
-	return fetch( basepath + path ).then( ( result ) => {
+	return fetch(basepath + path).then((result) => {
 		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
 		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
-		if ( result.ok ) { return result.text(); }
+		if (result.ok) { return result.text(); }
 		throw result;
-	} );
+	});
 }
 
 // コンテンツのレンダリングを行います。
-function Render( contents, data ) {
+function Render(contents, data) {
 	contents.textContent = data;
 }
 
 // 初期化部分。
 function Init() {
 	// コンテンツをレンダリングするHTML要素を取得します。
-	const contents = document.getElementById( 'contents' );
+	const contents = document.getElementById('contents');
 
 	// 今回の特殊事情の関係で、ベースのURLを作成します。
 	// http://USERNAME.github.io/SPA_Sample/NUM/XXXXX から /SPA_Sample/NUM だけ抽出します。
 	// location.pathname は /SPA_Sample/NUM/XXXXX の部分を取得可能です。
-	const basepath = location.pathname.replace( /^(\/[^\/]+\/[^\/]+).*$/, '$1' );
+	const basepath = location.pathname.replace(/^(\/[^\/]+\/[^\/]+).*$/, '$1');
 
 	// 今度はURLからSPAにとってのパスを取得します。
 	// /SPA_Sample/NUM/XXXXX の /XXXXX の部分ですが、この中には/が入っている可能性もあります。
@@ -40,17 +40,17 @@ function Init() {
 	const path = '/';
 
 	// コンテンツを取得します。
-	Fetch( basepath, path ).then( ( md ) => {
+	Fetch(basepath, path).then((md) => {
 		// 取得したコンテンツをレンダリングする。
-		Render( contents, md );
-	} );
+		Render(contents, md);
+	});
 }
 
-// document.getElementById() を使っても大丈夫になったら初期化関数を実行する。
-document.addEventListener( 'DOMContentLoaded', Init );
+// document.getElementById() を使っても大丈夫になったら初期化関数を実行します。
+document.addEventListener('DOMContentLoaded', Init);
 	</script>
 </head>
 <body>
-<pre id="contents"></pre>
+	<pre id="contents"></pre>
 </body>
 </html>
