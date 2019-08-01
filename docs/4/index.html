@@ -62,7 +62,7 @@ class App {
 
 	// パスを元にコンテンツのレンダリングを行います。
 	renderPage(path) {
-		return this.etch(path).then((md) => {
+		return this.fetch(path).then((md) => {
 			this.render(md);
 		}).catch((error) => {
 			// 何かしらのエラーが発生しました。
