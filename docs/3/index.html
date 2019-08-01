@@ -26,6 +26,26 @@ class App {
 		this.renderPage(path);
 	}
 
+	// コンテンツを取得します。
+	fetch(path) {
+		// pathの簡易チェックを行います。
+		if (!path) { path = '/'; }
+		// pathの末尾が / の場合は index を追加します。
+		if (path.match(/\/$/)) { path += 'index'; }
+		// pathに .md を追加します。
+		path += '.md';
+		// fetch()を使いやすいようにラップします。
+		return fetch(this.basepath + path).then((result) => {
+			// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
+			// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
+			if (result.ok) { return result.text(); }
+			// 結果をテキストにして取り出し、エラーとして処理します。
+			return result.text().catch((error) => { return error; }).then((result) => {
+				throw new Error(result);
+			});
+		});
+	}
+
 	// データを元にコンテンツのレンダリングを行います。
 	render(data) {
 		this.contents.textContent = data;
@@ -33,7 +53,7 @@ class App {
 
 	// パスを元にコンテンツのレンダリングを行います。
 	renderPage(path) {
-		return Fetch(this.basepath, path).then((md) => {
+		return this.fetch(path).then((md) => {
 			this.render(md);
 		}).catch((error) => {
 			// 何かしらのエラーが発生しました。
@@ -78,26 +98,6 @@ class App {
 			anchors[i].onclick = this.jumpPage(anchors[i].href.replace(baseurl, ''));
 		}
 	}
-}
-
-// コンテンツを取得します。
-function Fetch(basepath, path) {
-	// pathの簡易チェックを行います。
-	if (!path) { path = '/'; }
-	// pathの末尾が / の場合は index を追加します。
-	if (path.match(/\/$/)) { path += 'index'; }
-	// pathに .md を追加します。
-	path += '.md';
-	// fetch()を使いやすいようにラップします。
-	return fetch(basepath + path).then((result) => {
-		// fetch()が失敗するのはネットワークトラブルなどであり、404エラーなどでは失敗扱いになりません。
-		// そこで result.ok で結果がエラーでない場合は結果テキストを返し、そうでない場合は失敗扱いにします。
-		if (result.ok) { return result.text(); }
-		// 結果をテキストにして取り出し、エラーとして処理します。
-		return result.text().catch((error) => { return error; }).then((result) => {
-			throw new Error(result);
-		});
-	});
 }
 
 // 初期化部分。
